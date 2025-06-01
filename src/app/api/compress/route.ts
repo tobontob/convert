@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import sharp from 'sharp';
 
-export const maxDuration = 300; // 5 minutes
+export const maxDuration = 60; // Vercel Hobby 플랜 제한
 export const dynamic = 'force-dynamic';
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB 제한
 
 // OPTIONS 요청 처리
 export async function OPTIONS() {
@@ -35,17 +37,43 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 파일 크기 검사
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: '파일 크기는 5MB를 초과할 수 없습니다.' },
+        { 
+          status: 400,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+          }
+        }
+      );
+    }
+
     // Blob을 Buffer로 변환
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
     const originalImage = sharp(buffer);
+    const metadata = await originalImage.metadata();
 
-    // 이미지 압축 설정
-    const compressedBuffer = await originalImage
+    // 이미지 크기가 너무 큰 경우 리사이징
+    let processedImage = originalImage;
+    if (metadata.width && metadata.width > 2000) {
+      processedImage = originalImage.resize(2000, undefined, {
+        withoutEnlargement: true,
+        fit: 'inside',
+      });
+    }
+
+    // 이미지 압축 설정 최적화
+    const compressedBuffer = await processedImage
       .jpeg({
-        quality: 80,
-        mozjpeg: true,
+        quality: 75, // 품질 조정
+        mozjpeg: true, // mozjpeg 최적화 사용
+        chromaSubsampling: '4:2:0', // 크로마 서브샘플링
       })
       .toBuffer();
 
