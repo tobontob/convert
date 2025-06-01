@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import sharp from 'sharp';
 
+export const maxDuration = 300; // 5 minutes
+export const dynamic = 'force-dynamic';
+
 // OPTIONS 요청 처리
 export async function OPTIONS() {
   return new NextResponse(null, {
@@ -21,7 +24,14 @@ export async function POST(request: NextRequest) {
     if (!file) {
       return NextResponse.json(
         { error: '이미지 파일이 필요합니다.' },
-        { status: 400 }
+        { 
+          status: 400,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+          }
+        }
       );
     }
 

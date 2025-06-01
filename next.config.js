@@ -4,12 +4,6 @@ const nextConfig = {
   images: {
     unoptimized: true
   },
-  api: {
-    bodyParser: {
-      sizeLimit: '10mb',
-    },
-    responseLimit: '10mb',
-  },
   async headers() {
     return [
       {
