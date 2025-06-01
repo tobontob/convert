@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import sharp from 'sharp';
 
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    const file = formData.get('image') as File;
+    const file = formData.get('image') as Blob;
 
     if (!file) {
       return NextResponse.json(
@@ -13,7 +19,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
+    // Blob을 Buffer로 변환
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
     const originalImage = sharp(buffer);
 
     // 이미지 압축 설정

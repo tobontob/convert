@@ -22,10 +22,14 @@ export default function CompressPage() {
       const response = await fetch('/api/compress', {
         method: 'POST',
         body: formData,
+        headers: {
+          'Accept': 'application/json',
+        },
       });
 
       if (!response.ok) {
-        throw new Error('이미지 압축 중 오류가 발생했습니다.');
+        const errorData = await response.json();
+        throw new Error(errorData.error || '이미지 압축 중 오류가 발생했습니다.');
       }
 
       const data = await response.json();
@@ -36,7 +40,7 @@ export default function CompressPage() {
       });
     } catch (error) {
       console.error('Error:', error);
-      alert('이미지 압축 중 오류가 발생했습니다.');
+      alert(error instanceof Error ? error.message : '이미지 압축 중 오류가 발생했습니다.');
     } finally {
       setIsProcessing(false);
     }
@@ -91,7 +95,7 @@ export default function CompressPage() {
                 <div className="mt-6">
                   <a
                     href={result.compressedUrl}
-                    download
+                    download="compressed-image.jpg"
                     className="block w-full bg-blue-500 text-white text-center py-3 rounded-lg hover:bg-blue-600 transition-colors"
                   >
                     압축된 이미지 다운로드
