@@ -1,17 +1,7 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next",
-      "config": {
-        "installCommand": "npm install --platform=linux --arch=x64 sharp && npm install"
-      }
-    }
-  ],
-  "functions": {
-    "app/api/compress/route.ts": {
-      "maxDuration": 60
-    }
-  }
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "nextjs"
 } 
