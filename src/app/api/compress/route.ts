@@ -15,7 +15,6 @@ export async function POST(request: NextRequest) {
 
     const buffer = Buffer.from(await file.arrayBuffer());
     const originalImage = sharp(buffer);
-    const metadata = await originalImage.metadata();
 
     // 이미지 압축 설정
     const compressedBuffer = await originalImage
