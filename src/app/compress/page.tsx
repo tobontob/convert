@@ -48,56 +48,66 @@ export default function CompressPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 py-12">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         <div className="mb-8">
           <Link
             href="/"
-            className="inline-flex items-center text-gray-600 hover:text-gray-900"
+            className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
           >
             <ArrowLeftIcon className="w-5 h-5 mr-2" />
-            돌아가기
+            <span className="text-sm font-medium">돌아가기</span>
           </Link>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">이미지 압축</h1>
-          <p className="text-gray-600 mb-8">
-            이미지 품질은 유지하면서 파일 크기를 줄여보세요.
-          </p>
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          <div className="px-6 py-8 sm:p-10 bg-gradient-to-r from-blue-500 to-purple-500">
+            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
+              이미지 압축
+            </h1>
+            <p className="text-blue-50 text-lg">
+              이미지 품질은 유지하면서 파일 크기를 줄여보세요.
+            </p>
+          </div>
 
-          <div className="space-y-8">
+          <div className="p-6 sm:p-10 space-y-8">
             <ImageUploader onImageUpload={handleImageUpload} />
 
             {isProcessing && (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-500 mx-auto"></div>
-                <p className="mt-4 text-gray-600">이미지 압축 중...</p>
+              <div className="text-center py-12">
+                <div className="relative w-20 h-20 mx-auto mb-4">
+                  <div className="absolute inset-0 rounded-full border-4 border-blue-200 opacity-25"></div>
+                  <div className="absolute inset-0 rounded-full border-4 border-t-blue-500 animate-spin"></div>
+                </div>
+                <p className="text-gray-600 text-lg">이미지 압축 중...</p>
               </div>
             )}
 
             {result && (
-              <div className="border border-gray-200 rounded-lg p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">압축 결과</h2>
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-sm text-gray-500 mb-1">원본 크기</p>
-                    <p className="text-lg font-medium text-gray-900">
+              <div className="bg-gray-50 rounded-2xl p-6 sm:p-8">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-6">압축 결과</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="bg-white rounded-xl p-6 shadow-sm">
+                    <p className="text-sm font-medium text-gray-500 mb-2">원본 크기</p>
+                    <p className="text-2xl font-bold text-gray-900">
                       {(result.originalSize / 1024).toFixed(2)} KB
                     </p>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-sm text-gray-500 mb-1">압축 후 크기</p>
-                    <p className="text-lg font-medium text-gray-900">
+                  <div className="bg-white rounded-xl p-6 shadow-sm">
+                    <p className="text-sm font-medium text-gray-500 mb-2">압축 후 크기</p>
+                    <p className="text-2xl font-bold text-gray-900">
                       {(result.compressedSize / 1024).toFixed(2)} KB
+                    </p>
+                    <p className="text-sm text-green-600 mt-2">
+                      {((1 - result.compressedSize / result.originalSize) * 100).toFixed(1)}% 감소
                     </p>
                   </div>
                 </div>
-                <div className="mt-6">
+                <div className="mt-8">
                   <a
                     href={result.compressedUrl}
                     download="compressed-image.jpg"
-                    className="block w-full bg-blue-500 text-white text-center py-3 rounded-lg hover:bg-blue-600 transition-colors"
+                    className="block w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white text-center py-4 rounded-xl font-medium hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg hover:shadow-xl"
                   >
                     압축된 이미지 다운로드
                   </a>

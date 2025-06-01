@@ -3,11 +3,53 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
+  --primary-rgb: 59, 130, 246;
+  --secondary-rgb: 99, 102, 241;
+  --accent-rgb: 236, 72, 153;
   --background-rgb: 249, 250, 251;
+  --foreground-rgb: 17, 24, 39;
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
+@layer base {
+  body {
+    color: rgb(var(--foreground-rgb));
+    background: rgb(var(--background-rgb));
+  }
+}
+
+@layer components {
+  .gradient-border {
+    position: relative;
+    border-radius: 0.75rem;
+    background: linear-gradient(to right, rgb(var(--primary-rgb)), rgb(var(--secondary-rgb)));
+    padding: 1px;
+  }
+
+  .gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    border-radius: 0.7rem;
+    background: white;
+  }
+
+  .card-hover {
+    transition: all 0.3s ease;
+  }
+
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -8px rgba(var(--primary-rgb), 0.25);
+  }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 8s ease infinite;
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
