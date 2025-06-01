@@ -25,11 +25,12 @@ export default function CompressPage() {
         headers: {
           'Accept': 'application/json',
         },
+        cache: 'no-store',
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || '이미지 압축 중 오류가 발생했습니다.');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
