@@ -10,7 +10,7 @@
     }
   ],
   "functions": {
-    "api/compress": {
+    "api/compress.js": {
       "maxDuration": 60
     }
   }
