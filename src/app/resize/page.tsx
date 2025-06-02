@@ -28,6 +28,7 @@ export default function ResizePage() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [originalDimensions, setOriginalDimensions] = useState<{ width: number; height: number } | null>(null);
   const [previewDimensions, setPreviewDimensions] = useState<{ width: number; height: number } | null>(null);
+  const [lastChangedDimension, setLastChangedDimension] = useState<'width' | 'height' | null>(null);
   const previewContainerRef = useRef<HTMLDivElement>(null);
 
   const calculateNewDimensions = (originalWidth: number, originalHeight: number, targetWidth: string, targetHeight: string) => {
@@ -39,19 +40,39 @@ export default function ResizePage() {
       newHeight = Math.round((originalHeight * Number(targetHeight)) / 100);
     }
 
-    if (maintainAspectRatio) {
+    if (maintainAspectRatio && originalDimensions) {
       const ratio = originalWidth / originalHeight;
-      if (targetWidth && !targetHeight) {
+
+      if (lastChangedDimension === 'width' || (!lastChangedDimension && targetWidth)) {
+        newWidth = Number(targetWidth);
+        if (resizeMode === 'percent') {
+          newWidth = Math.round((originalWidth * Number(targetWidth)) / 100);
+        }
         newHeight = Math.round(newWidth / ratio);
-      } else if (!targetWidth && targetHeight) {
+      } else if (lastChangedDimension === 'height' || (!lastChangedDimension && targetHeight)) {
+        newHeight = Number(targetHeight);
+        if (resizeMode === 'percent') {
+          newHeight = Math.round((originalHeight * Number(targetHeight)) / 100);
+        }
         newWidth = Math.round(newHeight * ratio);
-      } else if (targetWidth && targetHeight) {
-        // 가로세로 비율을 유지하면서 지정된 크기 내에 맞추기
-        const widthRatio = newWidth / originalWidth;
-        const heightRatio = newHeight / originalHeight;
-        const scaleFactor = Math.min(widthRatio, heightRatio);
-        newWidth = Math.round(originalWidth * scaleFactor);
-        newHeight = Math.round(originalHeight * scaleFactor);
+      }
+
+      // 퍼센트 모드일 경우 값을 다시 퍼센트로 변환
+      if (resizeMode === 'percent') {
+        if (lastChangedDimension === 'width') {
+          const heightPercent = (newHeight / originalHeight) * 100;
+          setHeight(heightPercent.toFixed(0));
+        } else if (lastChangedDimension === 'height') {
+          const widthPercent = (newWidth / originalWidth) * 100;
+          setWidth(widthPercent.toFixed(0));
+        }
+      } else {
+        // 픽셀 모드일 경우 직접 값 설정
+        if (lastChangedDimension === 'width') {
+          setHeight(newHeight.toString());
+        } else if (lastChangedDimension === 'height') {
+          setWidth(newWidth.toString());
+        }
       }
     }
 
@@ -153,6 +174,16 @@ export default function ResizePage() {
     setHeight(String(percent));
   };
 
+  const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLastChangedDimension('width');
+    setWidth(e.target.value);
+  };
+
+  const handleHeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLastChangedDimension('height');
+    setHeight(e.target.value);
+  };
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
@@ -220,7 +251,7 @@ export default function ResizePage() {
                           <input
                             type="number"
                             value={width}
-                            onChange={(e) => setWidth(e.target.value)}
+                            onChange={handleWidthChange}
                             className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                             placeholder={resizeMode === 'percent' ? '퍼센트 입력' : '픽셀 입력'}
                           />
@@ -232,7 +263,7 @@ export default function ResizePage() {
                           <input
                             type="number"
                             value={height}
-                            onChange={(e) => setHeight(e.target.value)}
+                            onChange={handleHeightChange}
                             className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                             placeholder={resizeMode === 'percent' ? '퍼센트 입력' : '픽셀 입력'}
                           />
