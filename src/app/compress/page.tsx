@@ -58,7 +58,7 @@ export default function CompressPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <Navigation />
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="px-6 py-8 sm:p-10 bg-gradient-to-r from-blue-500 to-purple-500">
             <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">

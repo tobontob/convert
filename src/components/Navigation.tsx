@@ -6,7 +6,8 @@ import {
   ArrowUpTrayIcon, 
   ArrowsPointingInIcon, 
   PhotoIcon,
-  Square2StackIcon
+  Square2StackIcon,
+  ArrowPathIcon
 } from '@heroicons/react/24/outline';
 
 export default function Navigation() {
@@ -60,6 +61,17 @@ export default function Navigation() {
             >
               <PhotoIcon className="w-5 h-5" />
               <span>자르기</span>
+            </Link>
+            <Link
+              href="/convert-to-jpg"
+              className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-105 flex items-center space-x-1.5 ${
+                isActive('/convert-to-jpg')
+                  ? 'bg-green-50 text-green-600 shadow-sm'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-green-600'
+              }`}
+            >
+              <ArrowPathIcon className="w-5 h-5" />
+              <span>JPEG 변환</span>
             </Link>
           </nav>
         </div>
