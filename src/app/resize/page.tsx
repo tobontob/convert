@@ -1,0 +1,366 @@
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import ImageUploader from '@/components/ImageUploader';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import Link from 'next/link';
+
+interface ResizeResult {
+  url: string;
+  originalWidth: number;
+  originalHeight: number;
+  newWidth: number;
+  newHeight: number;
+  size: number;
+}
+
+type ResizeMode = 'pixels' | 'percent';
+
+export default function ResizePage() {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [result, setResult] = useState<ResizeResult | null>(null);
+  const [width, setWidth] = useState<string>('');
+  const [height, setHeight] = useState<string>('');
+  const [resizeMode, setResizeMode] = useState<ResizeMode>('pixels');
+  const [maintainAspectRatio, setMaintainAspectRatio] = useState(true);
+  const [preventEnlargement, setPreventEnlargement] = useState(true);
+  const [originalImage, setOriginalImage] = useState<string | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [originalDimensions, setOriginalDimensions] = useState<{ width: number; height: number } | null>(null);
+  const [previewDimensions, setPreviewDimensions] = useState<{ width: number; height: number } | null>(null);
+  const previewContainerRef = useRef<HTMLDivElement>(null);
+
+  const calculateNewDimensions = (originalWidth: number, originalHeight: number, targetWidth: string, targetHeight: string) => {
+    let newWidth = Number(targetWidth) || originalWidth;
+    let newHeight = Number(targetHeight) || originalHeight;
+
+    if (resizeMode === 'percent') {
+      newWidth = Math.round((originalWidth * Number(targetWidth)) / 100);
+      newHeight = Math.round((originalHeight * Number(targetHeight)) / 100);
+    }
+
+    if (maintainAspectRatio) {
+      const ratio = originalWidth / originalHeight;
+      if (targetWidth && !targetHeight) {
+        newHeight = Math.round(newWidth / ratio);
+      } else if (!targetWidth && targetHeight) {
+        newWidth = Math.round(newHeight * ratio);
+      } else if (targetWidth && targetHeight) {
+        // 가로세로 비율을 유지하면서 지정된 크기 내에 맞추기
+        const widthRatio = newWidth / originalWidth;
+        const heightRatio = newHeight / originalHeight;
+        const scaleFactor = Math.min(widthRatio, heightRatio);
+        newWidth = Math.round(originalWidth * scaleFactor);
+        newHeight = Math.round(originalHeight * scaleFactor);
+      }
+    }
+
+    if (preventEnlargement) {
+      newWidth = Math.min(newWidth, originalWidth);
+      newHeight = Math.min(newHeight, originalHeight);
+    }
+
+    return { width: newWidth, height: newHeight };
+  };
+
+  // 크기 입력값이 변경될 때마다 미리보기 업데이트
+  useEffect(() => {
+    if (originalDimensions) {
+      const newDimensions = calculateNewDimensions(
+        originalDimensions.width,
+        originalDimensions.height,
+        width,
+        height
+      );
+      setPreviewDimensions(newDimensions);
+    }
+  }, [width, height, resizeMode, maintainAspectRatio, preventEnlargement]);
+
+  const handleImageUpload = async (file: File) => {
+    setUploadedFile(file);
+    
+    // 원본 이미지 미리보기 및 크기 정보 가져오기
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setOriginalImage(reader.result as string);
+      const img = new Image();
+      img.onload = () => {
+        const dimensions = { width: img.width, height: img.height };
+        setOriginalDimensions(dimensions);
+        setPreviewDimensions(dimensions);
+        // 기본값으로 원본 크기 설정
+        setWidth(String(img.width));
+        setHeight(String(img.height));
+      };
+      img.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleResize = async () => {
+    if (!uploadedFile) return;
+
+    setIsProcessing(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', uploadedFile);
+
+      // 퍼센트 모드일 경우 픽셀 값으로 변환
+      if (resizeMode === 'percent' && originalDimensions) {
+        const widthPercent = Number(width) / 100;
+        const heightPercent = Number(height) / 100;
+        formData.append('width', String(Math.round(originalDimensions.width * widthPercent)));
+        formData.append('height', String(Math.round(originalDimensions.height * heightPercent)));
+      } else {
+        formData.append('width', width);
+        formData.append('height', height);
+      }
+
+      formData.append('maintainAspectRatio', maintainAspectRatio.toString());
+      formData.append('preventEnlargement', preventEnlargement.toString());
+
+      const response = await fetch('/api/resize', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setResult(data);
+    } catch (error) {
+      console.error('Error:', error);
+      alert(error instanceof Error ? error.message : '이미지 리사이징 중 오류가 발생했습니다.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // 빠른 리사이징 프리셋
+  const quickResizePresets = [
+    { label: '25% 작게', value: 75 },
+    { label: '50% 작게', value: 50 },
+    { label: '75% 작게', value: 25 },
+  ];
+
+  const handleQuickResize = (percent: number) => {
+    if (!originalDimensions) return;
+    setResizeMode('percent');
+    setWidth(String(percent));
+    setHeight(String(percent));
+  };
+
+  return (
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <div className="mb-8">
+          <Link
+            href="/"
+            className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeftIcon className="w-5 h-5 mr-2" />
+            <span className="text-sm font-medium">돌아가기</span>
+          </Link>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          <div className="px-6 py-8 sm:p-10 bg-gradient-to-r from-purple-500 to-pink-500">
+            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
+              이미지 리사이즈
+            </h1>
+            <p className="text-purple-50 text-lg">
+              새로운 높이와 너비 픽셀을 지정하여 JPG, PNG, SVG 또는 GIF 파일의 크기를 조절하세요.
+            </p>
+          </div>
+
+          <div className="p-6 sm:p-10 space-y-8">
+            {!originalImage ? (
+              <ImageUploader onImageUpload={handleImageUpload} />
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  {/* 리사이징 컨트롤 */}
+                  <div className="bg-gray-50 rounded-xl p-6">
+                    <h3 className="text-lg font-medium text-gray-900 mb-6">크기 조절 옵션</h3>
+                    
+                    <div className="space-y-6">
+                      {/* 리사이징 모드 선택 */}
+                      <div className="flex space-x-4">
+                        <button
+                          onClick={() => setResizeMode('pixels')}
+                          className={`px-4 py-2 rounded-lg font-medium ${
+                            resizeMode === 'pixels'
+                              ? 'bg-purple-500 text-white'
+                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                          }`}
+                        >
+                          픽셀별
+                        </button>
+                        <button
+                          onClick={() => setResizeMode('percent')}
+                          className={`px-4 py-2 rounded-lg font-medium ${
+                            resizeMode === 'percent'
+                              ? 'bg-purple-500 text-white'
+                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                          }`}
+                        >
+                          퍼센트별
+                        </button>
+                      </div>
+
+                      {/* 크기 입력 */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            너비 {resizeMode === 'percent' ? '(%)' : '(px)'}
+                          </label>
+                          <input
+                            type="number"
+                            value={width}
+                            onChange={(e) => setWidth(e.target.value)}
+                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                            placeholder={resizeMode === 'percent' ? '퍼센트 입력' : '픽셀 입력'}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            높이 {resizeMode === 'percent' ? '(%)' : '(px)'}
+                          </label>
+                          <input
+                            type="number"
+                            value={height}
+                            onChange={(e) => setHeight(e.target.value)}
+                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                            placeholder={resizeMode === 'percent' ? '퍼센트 입력' : '픽셀 입력'}
+                          />
+                        </div>
+                      </div>
+
+                      {/* 옵션 체크박스 */}
+                      <div className="space-y-3">
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id="aspectRatio"
+                            checked={maintainAspectRatio}
+                            onChange={(e) => setMaintainAspectRatio(e.target.checked)}
+                            className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="aspectRatio" className="ml-2 text-sm text-gray-700">
+                            가로세로 비율 유지
+                          </label>
+                        </div>
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id="preventEnlargement"
+                            checked={preventEnlargement}
+                            onChange={(e) => setPreventEnlargement(e.target.checked)}
+                            className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="preventEnlargement" className="ml-2 text-sm text-gray-700">
+                            더 작을 경우 확대 안함
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* 빠른 리사이징 프리셋 */}
+                      <div className="flex flex-wrap gap-2">
+                        {quickResizePresets.map((preset) => (
+                          <button
+                            key={preset.value}
+                            onClick={() => handleQuickResize(preset.value)}
+                            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm font-medium"
+                          >
+                            {preset.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* 리사이즈 버튼 */}
+                      <button
+                        onClick={handleResize}
+                        disabled={isProcessing}
+                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-xl font-medium hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-xl disabled:opacity-50"
+                      >
+                        {isProcessing ? '처리중...' : '이미지 리사이즈'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 현재 크기 정보 */}
+                  <div className="bg-gray-50 rounded-xl p-6">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">크기 정보</h3>
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">
+                        원본 크기: {originalDimensions?.width} x {originalDimensions?.height} 픽셀
+                      </p>
+                      {previewDimensions && (
+                        <p className="text-sm text-gray-600">
+                          조정될 크기: {previewDimensions.width} x {previewDimensions.height} 픽셀
+                          {originalDimensions && (
+                            <span className="ml-2 text-purple-600">
+                              ({Math.round((previewDimensions.width * previewDimensions.height * 100) / (originalDimensions.width * originalDimensions.height))}% 크기)
+                            </span>
+                          )}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 이미지 미리보기 */}
+                <div className="bg-gray-50 rounded-xl p-6">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">미리보기</h3>
+                  <div ref={previewContainerRef} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
+                    <img
+                      src={originalImage}
+                      alt="미리보기"
+                      className="absolute inset-0 w-full h-full object-contain"
+                      style={{
+                        width: previewDimensions ? `${previewDimensions.width}px` : '100%',
+                        height: previewDimensions ? `${previewDimensions.height}px` : '100%',
+                        maxWidth: '100%',
+                        maxHeight: '100%',
+                        margin: 'auto',
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {isProcessing && (
+              <div className="text-center py-12">
+                <div className="relative w-20 h-20 mx-auto mb-4">
+                  <div className="absolute inset-0 rounded-full border-4 border-purple-200 opacity-25"></div>
+                  <div className="absolute inset-0 rounded-full border-4 border-t-purple-500 animate-spin"></div>
+                </div>
+                <p className="text-gray-600 text-lg">이미지 리사이징 중...</p>
+              </div>
+            )}
+
+            {result && (
+              <div className="mt-8">
+                <a
+                  href={result.url}
+                  download="resized-image.jpg"
+                  className="block w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-center py-4 rounded-xl font-medium hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-xl"
+                >
+                  리사이즈된 이미지 다운로드
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+} 
