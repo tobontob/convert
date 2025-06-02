@@ -79,90 +79,90 @@ export default function ConvertToJpg() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <Navigation />
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="max-w-6xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-12">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          <div className="px-6 py-8 sm:p-10 bg-gradient-to-r from-indigo-500 to-blue-500">
-            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
+          <div className="px-4 py-6 sm:p-10 bg-gradient-to-r from-orange-500 to-yellow-500">
+            <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2">
               이미지를 JPEG로 변환
             </h1>
-            <p className="text-white/90">
+            <p className="text-orange-50 text-base sm:text-lg">
               PNG, WEBP, GIF 등 다양한 이미지 형식을 JPEG로 변환할 수 있습니다.
             </p>
           </div>
 
-          <div className="p-6 sm:p-10">
-            {!file ? (
-              <div
-                {...getRootProps()}
-                className={`relative group border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all duration-200
-                  ${
-                    isDragActive
-                      ? 'border-indigo-500 bg-indigo-50'
-                      : 'border-gray-300 hover:bg-gray-50 hover:border-gray-400'
-                  }
-                `}
-              >
-                <input {...getInputProps()} />
-                <div className="space-y-6">
-                  <div className="w-20 h-20 rounded-full bg-gray-100 mx-auto flex items-center justify-center group-hover:bg-gray-200 transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                    </svg>
+          <div className="p-4 sm:p-10 space-y-6 sm:space-y-8">
+            <div
+              {...getRootProps()}
+              className={`relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
+                isDragActive
+                  ? 'border-orange-500 bg-orange-50'
+                  : 'border-gray-300 hover:border-orange-500 hover:bg-orange-50'
+              }`}
+            >
+              <input {...getInputProps()} />
+              {!preview ? (
+                <div className="space-y-4">
+                  <div className="w-16 h-16 mx-auto rounded-full bg-orange-100 flex items-center justify-center">
+                    <ArrowUpTrayIcon className="w-8 h-8 text-orange-600" />
                   </div>
-                  <div>
-                    <p className="text-lg font-medium text-gray-900">
-                      {isDragActive ? '여기에 파일을 놓으세요' : '이미지를 드래그하여 놓거나 클릭하세요'}
+                  <div className="space-y-2">
+                    <p className="text-base sm:text-lg font-medium text-gray-700">
+                      이미지를 드래그하여 놓거나 클릭하여 선택하세요
                     </p>
-                    <p className="mt-2 text-sm text-gray-600">
-                      지원 형식: JPG, PNG, GIF, WEBP (최대 10MB)
+                    <p className="text-sm text-gray-500">
+                      PNG, WEBP, GIF 등의 이미지 파일 지원
                     </p>
                   </div>
                 </div>
-              </div>
-            ) : (
+              ) : (
+                <div className="space-y-4">
+                  <div className="relative aspect-[3/2] w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+                    <Image
+                      src={preview}
+                      alt="Preview"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    클릭하거나 드래그하여 다른 이미지로 변경
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {file && (
               <div className="space-y-6">
-                <div className="relative aspect-[3/2] w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-                  <Image
-                    src={preview}
-                    alt="Preview"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-                
-                <div className="flex justify-center gap-3">
-                  <button
-                    onClick={handleReset}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-                  >
-                    다른 이미지 편집하기
-                  </button>
+                <div className="flex justify-center">
                   <button
                     onClick={handleConvert}
                     disabled={loading}
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                    className="w-full sm:w-auto px-6 py-2.5 text-base font-medium text-white bg-orange-500 rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                   >
                     {loading ? '변환 중...' : 'JPEG로 변환하기'}
                   </button>
                 </div>
 
                 {convertedUrl && (
-                  <div className="space-y-4 pt-4">
-                    <div className="relative aspect-[3/2] w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-                      <Image
-                        src={convertedUrl}
-                        alt="Converted"
-                        fill
-                        className="object-contain"
-                      />
-                    </div>
-                    <div className="flex justify-center">
-                      <button
-                        onClick={handleDownload}
-                        className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors duration-200"
-                      >
-                        JPEG 다운로드
-                      </button>
+                  <div className="space-y-6">
+                    <div className="bg-gray-50 rounded-xl p-4 sm:p-6">
+                      <h3 className="text-lg font-medium text-gray-900 mb-4">변환 결과</h3>
+                      <div className="relative aspect-[3/2] w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+                        <Image
+                          src={convertedUrl}
+                          alt="Converted"
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                      <div className="flex justify-center mt-6">
+                        <button
+                          onClick={handleDownload}
+                          className="w-full sm:w-auto px-6 py-2.5 text-base font-medium text-white bg-green-500 rounded-lg hover:bg-green-600 transition-colors duration-200"
+                        >
+                          JPEG 다운로드
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
