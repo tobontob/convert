@@ -226,9 +226,35 @@ export default function ResizePage() {
                       다른 이미지 편집하기
                     </button>
                   </div>
-                  
+
+                  {/* 이미지 미리보기 */}
+                  <div className="bg-gray-50 rounded-xl p-6">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-medium text-gray-900">원본 이미지</h3>
+                      {originalDimensions && (
+                        <div className="text-sm text-gray-600">
+                          {originalDimensions.width} x {originalDimensions.height} 픽셀
+                        </div>
+                      )}
+                    </div>
+                    <div 
+                      ref={previewContainerRef}
+                      className="relative max-w-full overflow-hidden rounded-lg bg-gray-100"
+                      style={{ maxHeight: '400px' }}
+                    >
+                      <img
+                        src={originalImage}
+                        alt="원본 이미지"
+                        className="w-full h-full object-contain"
+                        style={{
+                          maxHeight: '400px'
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* 리사이징 모드 선택 */}
                   <div className="space-y-6">
-                    {/* 리사이징 모드 선택 */}
                     <div className="flex space-x-4">
                       <button
                         onClick={() => setResizeMode('pixels')}
