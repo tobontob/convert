@@ -34,7 +34,7 @@ export default function ImageUploader({
     <div
       {...getRootProps()}
       className={`
-        relative overflow-hidden rounded-2xl transition-all duration-300 ease-in-out
+        relative overflow-hidden rounded-2xl transition-all duration-300 ease-in-out cursor-pointer
         ${isDragActive 
           ? 'bg-blue-50 border-2 border-dashed border-blue-500 scale-102'
           : 'bg-white border-2 border-dashed border-gray-200 hover:border-blue-400 hover:bg-gray-50'

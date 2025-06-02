@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import ImageUploader from '@/components/ImageUploader';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import Navigation from '@/components/Navigation';
 
 interface ResizeResult {
   url: string;
@@ -186,17 +187,8 @@ export default function ResizePage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-        <div className="mb-8">
-          <Link
-            href="/"
-            className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <ArrowLeftIcon className="w-5 h-5 mr-2" />
-            <span className="text-sm font-medium">돌아가기</span>
-          </Link>
-        </div>
-
+      <Navigation />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="px-6 py-8 sm:p-10 bg-gradient-to-r from-purple-500 to-pink-500">
             <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
@@ -214,155 +206,149 @@ export default function ResizePage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="space-y-6">
                   {/* 리사이징 컨트롤 */}
-                  <div className="bg-gray-50 rounded-xl p-6">
-                    <h3 className="text-lg font-medium text-gray-900 mb-6">크기 조절 옵션</h3>
-                    
-                    <div className="space-y-6">
-                      {/* 리사이징 모드 선택 */}
-                      <div className="flex space-x-4">
-                        <button
-                          onClick={() => setResizeMode('pixels')}
-                          className={`px-4 py-2 rounded-lg font-medium ${
-                            resizeMode === 'pixels'
-                              ? 'bg-purple-500 text-white'
-                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                          }`}
-                        >
-                          픽셀별
-                        </button>
-                        <button
-                          onClick={() => setResizeMode('percent')}
-                          className={`px-4 py-2 rounded-lg font-medium ${
-                            resizeMode === 'percent'
-                              ? 'bg-purple-500 text-white'
-                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                          }`}
-                        >
-                          퍼센트별
-                        </button>
-                      </div>
-
-                      {/* 크기 입력 */}
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            너비 {resizeMode === 'percent' ? '(%)' : '(px)'}
-                          </label>
-                          <input
-                            type="number"
-                            value={width}
-                            onChange={handleWidthChange}
-                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-                            placeholder={resizeMode === 'percent' ? '퍼센트 입력' : '픽셀 입력'}
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            높이 {resizeMode === 'percent' ? '(%)' : '(px)'}
-                          </label>
-                          <input
-                            type="number"
-                            value={height}
-                            onChange={handleHeightChange}
-                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-                            placeholder={resizeMode === 'percent' ? '퍼센트 입력' : '픽셀 입력'}
-                          />
-                        </div>
-                      </div>
-
-                      {/* 옵션 체크박스 */}
-                      <div className="space-y-3">
-                        <div className="flex items-center">
-                          <input
-                            type="checkbox"
-                            id="aspectRatio"
-                            checked={maintainAspectRatio}
-                            onChange={(e) => setMaintainAspectRatio(e.target.checked)}
-                            className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                          />
-                          <label htmlFor="aspectRatio" className="ml-2 text-sm text-gray-700">
-                            가로세로 비율 유지
-                          </label>
-                        </div>
-                        <div className="flex items-center">
-                          <input
-                            type="checkbox"
-                            id="preventEnlargement"
-                            checked={preventEnlargement}
-                            onChange={(e) => setPreventEnlargement(e.target.checked)}
-                            className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                          />
-                          <label htmlFor="preventEnlargement" className="ml-2 text-sm text-gray-700">
-                            더 작을 경우 확대 안함
-                          </label>
-                        </div>
-                      </div>
-
-                      {/* 빠른 리사이징 프리셋 */}
-                      <div className="flex flex-wrap gap-2">
-                        {quickResizePresets.map((preset) => (
-                          <button
-                            key={preset.value}
-                            onClick={() => handleQuickResize(preset.value)}
-                            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm font-medium"
-                          >
-                            {preset.label}
-                          </button>
-                        ))}
-                      </div>
-
-                      {/* 리사이즈 버튼 */}
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-medium text-gray-900">크기 조절 옵션</h3>
+                    <button
+                      onClick={() => {
+                        setOriginalImage(null);
+                        setUploadedFile(null);
+                        setResult(null);
+                        setWidth('');
+                        setHeight('');
+                        setPreviewDimensions(null);
+                        setOriginalDimensions(null);
+                      }}
+                      className="inline-flex items-center px-4 py-2 border border-purple-500 text-purple-500 rounded-lg hover:bg-purple-50 transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                      </svg>
+                      다른 이미지 편집하기
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-6">
+                    {/* 리사이징 모드 선택 */}
+                    <div className="flex space-x-4">
                       <button
-                        onClick={handleResize}
-                        disabled={isProcessing}
-                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-xl font-medium hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-xl disabled:opacity-50"
+                        onClick={() => setResizeMode('pixels')}
+                        className={`px-4 py-2 rounded-lg font-medium ${
+                          resizeMode === 'pixels'
+                            ? 'bg-purple-500 text-white'
+                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        }`}
                       >
-                        {isProcessing ? '처리중...' : '이미지 리사이즈'}
+                        픽셀별
+                      </button>
+                      <button
+                        onClick={() => setResizeMode('percent')}
+                        className={`px-4 py-2 rounded-lg font-medium ${
+                          resizeMode === 'percent'
+                            ? 'bg-purple-500 text-white'
+                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        }`}
+                      >
+                        퍼센트별
                       </button>
                     </div>
-                  </div>
 
-                  {/* 현재 크기 정보 */}
-                  <div className="bg-gray-50 rounded-xl p-6">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">크기 정보</h3>
-                    <div className="space-y-2">
-                      <p className="text-sm text-gray-600">
-                        원본 크기: {originalDimensions?.width} x {originalDimensions?.height} 픽셀
-                      </p>
-                      {previewDimensions && (
-                        <p className="text-sm text-gray-600">
-                          조정될 크기: {previewDimensions.width} x {previewDimensions.height} 픽셀
-                          {originalDimensions && (
-                            <span className="ml-2 text-purple-600">
-                              ({Math.round((previewDimensions.width * previewDimensions.height * 100) / (originalDimensions.width * originalDimensions.height))}% 크기)
-                            </span>
-                          )}
-                        </p>
-                      )}
+                    {/* 크기 입력 */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          너비 {resizeMode === 'percent' ? '(%)' : '(px)'}
+                        </label>
+                        <input
+                          type="number"
+                          value={width}
+                          onChange={handleWidthChange}
+                          className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                          placeholder={resizeMode === 'percent' ? '퍼센트 입력' : '픽셀 입력'}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          높이 {resizeMode === 'percent' ? '(%)' : '(px)'}
+                        </label>
+                        <input
+                          type="number"
+                          value={height}
+                          onChange={handleHeightChange}
+                          className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                          placeholder={resizeMode === 'percent' ? '퍼센트 입력' : '픽셀 입력'}
+                        />
+                      </div>
                     </div>
+
+                    {/* 옵션 체크박스 */}
+                    <div className="space-y-3">
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id="aspectRatio"
+                          checked={maintainAspectRatio}
+                          onChange={(e) => setMaintainAspectRatio(e.target.checked)}
+                          className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                        />
+                        <label htmlFor="aspectRatio" className="ml-2 text-sm text-gray-700">
+                          가로세로 비율 유지
+                        </label>
+                      </div>
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id="preventEnlargement"
+                          checked={preventEnlargement}
+                          onChange={(e) => setPreventEnlargement(e.target.checked)}
+                          className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                        />
+                        <label htmlFor="preventEnlargement" className="ml-2 text-sm text-gray-700">
+                          더 작을 경우 확대 안함
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* 빠른 리사이징 프리셋 */}
+                    <div className="flex flex-wrap gap-2">
+                      {quickResizePresets.map((preset) => (
+                        <button
+                          key={preset.value}
+                          onClick={() => handleQuickResize(preset.value)}
+                          className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm font-medium"
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* 리사이즈 버튼 */}
+                    <button
+                      onClick={handleResize}
+                      disabled={isProcessing}
+                      className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-xl font-medium hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-xl disabled:opacity-50"
+                    >
+                      {isProcessing ? '처리중...' : '이미지 리사이즈'}
+                    </button>
                   </div>
                 </div>
 
-                {/* 이미지 미리보기 */}
+                {/* 현재 크기 정보 */}
                 <div className="bg-gray-50 rounded-xl p-6">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">미리보기</h3>
-                  <div ref={previewContainerRef} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
-                    <img
-                      src={originalImage}
-                      alt="미리보기"
-                      className="absolute inset-0 w-full h-full object-contain"
-                      style={{
-                        width: previewDimensions ? `${previewDimensions.width}px` : '100%',
-                        height: previewDimensions ? `${previewDimensions.height}px` : '100%',
-                        maxWidth: '100%',
-                        maxHeight: '100%',
-                        margin: 'auto',
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                      }}
-                    />
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">크기 정보</h3>
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-600">
+                      원본 크기: {originalDimensions?.width} x {originalDimensions?.height} 픽셀
+                    </p>
+                    {previewDimensions && (
+                      <p className="text-sm text-gray-600">
+                        조정될 크기: {previewDimensions.width} x {previewDimensions.height} 픽셀
+                        {originalDimensions && (
+                          <span className="ml-2 text-purple-600">
+                            ({Math.round((previewDimensions.width * previewDimensions.height * 100) / (originalDimensions.width * originalDimensions.height))}% 크기)
+                          </span>
+                        )}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
