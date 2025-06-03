@@ -1,9 +1,5 @@
 'use client';
 
-import { convertMetadata } from '../metadata';
-
-export const metadata = convertMetadata;
-
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Image from 'next/image';

@@ -1,9 +1,5 @@
 'use client';
 
-import { compressMetadata } from '../metadata';
-
-export const metadata = compressMetadata;
-
 import { useState } from 'react';
 import ImageUploader from '@/components/ImageUploader';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';

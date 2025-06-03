@@ -1,9 +1,5 @@
 'use client';
 
-import { editorMetadata } from '../metadata';
-
-export const metadata = editorMetadata;
-
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Image from 'next/image';

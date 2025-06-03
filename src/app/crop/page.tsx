@@ -1,9 +1,5 @@
 'use client';
 
-import { cropMetadata } from '../metadata';
-
-export const metadata = cropMetadata;
-
 import { useState, useRef } from 'react';
 import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
