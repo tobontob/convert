@@ -15,7 +15,8 @@ import {
   ArrowsRightLeftIcon,
   SparklesIcon,
   ArrowUturnLeftIcon,
-  ArrowUturnRightIcon
+  ArrowUturnRightIcon,
+  ArrowDownTrayIcon
 } from '@heroicons/react/24/outline';
 import Navigation from '@/components/Navigation';
 
@@ -752,307 +753,329 @@ export default function Editor() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <Navigation />
-      <div className="max-w-6xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-12">
+      <div className="max-w-6xl mx-auto px-2 sm:px-6 lg:px-8 py-2 sm:py-6">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          <div className="px-4 py-6 sm:p-10 bg-gradient-to-r from-indigo-500 to-purple-500">
-            <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2">
+          <div className="px-3 py-4 sm:p-10 bg-gradient-to-r from-indigo-500 to-purple-500">
+            <h1 className="text-xl sm:text-4xl font-bold text-white mb-1 sm:mb-2">
               이미지 편집
             </h1>
-            <p className="text-indigo-50 text-base sm:text-lg">
+            <p className="text-sm sm:text-lg text-indigo-50">
               이미지를 자유롭게 편집하세요.
             </p>
           </div>
 
-          <div className="p-4 sm:p-10 space-y-6">
+          <div className="p-2 sm:p-10 space-y-4 sm:space-y-6">
             {!preview ? (
               <div
                 {...getRootProps()}
-                className={`relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
+                className={`relative border-2 border-dashed rounded-xl p-4 sm:p-6 text-center cursor-pointer transition-colors ${
                   isDragActive
                     ? 'border-pink-500 bg-pink-50'
                     : 'border-gray-300 hover:border-pink-500 hover:bg-pink-50'
                 }`}
               >
                 <input {...getInputProps()} />
-                <div className="space-y-4">
-                  <div className="w-16 h-16 mx-auto rounded-full bg-pink-100 flex items-center justify-center">
-                    <ArrowUpTrayIcon className="w-8 h-8 text-pink-600" />
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto rounded-full bg-pink-100 flex items-center justify-center">
+                    <ArrowUpTrayIcon className="w-6 h-6 sm:w-8 sm:h-8 text-pink-600" />
                   </div>
-                  <div className="space-y-2">
-                    <p className="text-base sm:text-lg font-medium text-gray-700">
+                  <div className="space-y-1 sm:space-y-2">
+                    <p className="text-sm sm:text-lg font-medium text-gray-700">
                       이미지를 드래그하여 놓거나 클릭하여 선택하세요
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs sm:text-sm text-gray-500">
                       지원되는 형식: JPEG, PNG, WebP, GIF
                     </p>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="lg:flex lg:gap-6">
-                {/* 좌측: 이미지 프리뷰 영역 */}
-                <div className="lg:flex-[3] space-y-6">
-                  <div className="relative">
-                    {editedUrl && (
-                      <div className="absolute top-2 right-2 z-10 flex gap-2 bg-black/20 backdrop-blur-sm p-1 rounded-lg">
-                        <div className="relative group">
-                          <button
-                            onClick={handleUndo}
-                            disabled={currentHistoryIndex <= 0 || loading}
-                            className={`p-2 rounded-lg flex items-center justify-center ${
-                              currentHistoryIndex <= 0
-                                ? 'bg-white/20 text-white/40 cursor-not-allowed'
-                                : 'bg-white/20 text-white hover:bg-white/30'
-                            }`}
-                            aria-label="실행 취소"
-                          >
-                            <ArrowUturnLeftIcon className="w-5 h-5" />
-                          </button>
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                            실행 취소
-                          </div>
-                        </div>
-                        <div className="relative group">
-                          <button
-                            onClick={handleRedo}
-                            disabled={currentHistoryIndex >= history.length - 1 || loading}
-                            className={`p-2 rounded-lg flex items-center justify-center ${
-                              currentHistoryIndex >= history.length - 1
-                                ? 'bg-white/20 text-white/40 cursor-not-allowed'
-                                : 'bg-white/20 text-white hover:bg-white/30'
-                            }`}
-                            aria-label="다시 실행"
-                          >
-                            <ArrowUturnRightIcon className="w-5 h-5" />
-                          </button>
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                            다시 실행
-                          </div>
-                        </div>
-                        <div className="relative group">
-                          <button
-                            onClick={handleReset}
-                            disabled={loading}
-                            className="p-2 text-white bg-white/20 rounded-lg hover:bg-white/30 transition-colors flex items-center justify-center"
-                            aria-label="원래대로"
-                          >
-                            <ArrowPathIcon className="w-5 h-5" />
-                          </button>
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                            원래대로
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    <div className="bg-gray-50 rounded-xl p-3 sm:p-6">
-                      <div className="relative max-w-full overflow-hidden rounded-lg bg-gray-100">
-                        <div className="relative aspect-[3/2] w-full">
-                          <Image
-                            ref={imageRef}
-                            src={preview}
-                            alt="Preview"
-                            fill
-                            className="object-contain"
-                            onLoad={handleImageLoad}
-                            priority
-                            unoptimized
-                            draggable={false}
-                          />
-                          {cropMode && (
-                            <div 
-                              className="absolute inset-0 bg-black bg-opacity-50"
-                              style={{ cursor: isDragging ? (resizeHandle ? 'grabbing' : 'move') : 'default' }}
+              <div className="space-y-4 sm:space-y-6">
+                <div className="lg:flex lg:gap-6">
+                  {/* 좌측: 이미지 프리뷰 영역 */}
+                  <div className="lg:flex-[3] space-y-4 sm:space-y-6">
+                    <div className="relative">
+                      {editedUrl && (
+                        <div className="absolute top-2 right-2 z-10 flex gap-1 sm:gap-2 bg-black/20 backdrop-blur-sm p-0.5 sm:p-1 rounded-lg">
+                          <div className="relative group">
+                            <button
+                              onClick={handleUndo}
+                              disabled={currentHistoryIndex <= 0 || loading}
+                              className={`p-1.5 sm:p-2 rounded-lg flex items-center justify-center ${
+                                currentHistoryIndex <= 0
+                                  ? 'bg-white/20 text-white/40 cursor-not-allowed'
+                                  : 'bg-white/20 text-white hover:bg-white/30'
+                              }`}
+                              aria-label="실행 취소"
                             >
-                              <div
-                                ref={cropAreaRef}
-                                className="absolute select-none"
-                                style={{
-                                  left: `${cropData.x}px`,
-                                  top: `${cropData.y}px`,
-                                  width: `${cropData.width}px`,
-                                  height: `${cropData.height}px`,
-                                  cursor: isDragging ? 'grabbing' : 'grab',
-                                  touchAction: 'none'
-                                }}
-                                onMouseDown={(e) => handleMouseDown(e)}
-                              >
-                                <div className="absolute inset-0 border-2 border-white">
-                                  <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none">
-                                    {Array.from({ length: 2 }).map((_, i) => (
-                                      <div key={`v${i}`} className="absolute top-0 bottom-0 border-l border-white border-opacity-50"
-                                           style={{ left: `${((i + 1) * 100) / 3}%` }} />
-                                    ))}
-                                    {Array.from({ length: 2 }).map((_, i) => (
-                                      <div key={`h${i}`} className="absolute left-0 right-0 border-t border-white border-opacity-50"
-                                           style={{ top: `${((i + 1) * 100) / 3}%` }} />
-                                    ))}
-                                  </div>
-                                </div>
-
-                                {/* 크기 조절 핸들 */}
-                                {['nw', 'ne', 'sw', 'se'].map((handle) => (
-                                  <div
-                                    key={handle}
-                                    className="absolute w-4 h-4 bg-white rounded-full border-2 border-gray-800"
-                                    style={{
-                                      top: handle.includes('n') ? '-8px' : 'auto',
-                                      bottom: handle.includes('s') ? '-8px' : 'auto',
-                                      left: handle.includes('w') ? '-8px' : 'auto',
-                                      right: handle.includes('e') ? '-8px' : 'auto',
-                                      cursor: `${handle}-resize`
-                                    }}
-                                    onMouseDown={(e) => {
-                                      e.stopPropagation();
-                                      handleMouseDown(e, handle);
-                                    }}
-                                  />
-                                ))}
-                              </div>
+                              <ArrowUturnLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                            </button>
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs sm:text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                              실행 취소
                             </div>
-                          )}
+                          </div>
+                          <div className="relative group">
+                            <button
+                              onClick={handleRedo}
+                              disabled={currentHistoryIndex >= history.length - 1 || loading}
+                              className={`p-1.5 sm:p-2 rounded-lg flex items-center justify-center ${
+                                currentHistoryIndex >= history.length - 1
+                                  ? 'bg-white/20 text-white/40 cursor-not-allowed'
+                                  : 'bg-white/20 text-white hover:bg-white/30'
+                              }`}
+                              aria-label="다시 실행"
+                            >
+                              <ArrowUturnRightIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                            </button>
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs sm:text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                              다시 실행
+                            </div>
+                          </div>
+                          <div className="relative group">
+                            <button
+                              onClick={handleReset}
+                              disabled={loading}
+                              className="p-1.5 sm:p-2 text-white bg-white/20 rounded-lg hover:bg-white/30 transition-colors flex items-center justify-center"
+                              aria-label="원래대로"
+                            >
+                              <ArrowPathIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                            </button>
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs sm:text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                              원래대로
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="bg-gray-50 rounded-xl p-2 sm:p-6">
+                        <div className="relative max-w-full overflow-hidden rounded-lg bg-gray-100">
+                          <div className="relative aspect-[3/2] w-full">
+                            <Image
+                              ref={imageRef}
+                              src={preview}
+                              alt="Preview"
+                              fill
+                              className="object-contain"
+                              onLoad={handleImageLoad}
+                              priority
+                              unoptimized
+                              draggable={false}
+                            />
+                            {cropMode && (
+                              <div 
+                                className="absolute inset-0 bg-black bg-opacity-50"
+                                style={{ cursor: isDragging ? (resizeHandle ? 'grabbing' : 'move') : 'default' }}
+                              >
+                                <div
+                                  ref={cropAreaRef}
+                                  className="absolute select-none"
+                                  style={{
+                                    left: `${cropData.x}px`,
+                                    top: `${cropData.y}px`,
+                                    width: `${cropData.width}px`,
+                                    height: `${cropData.height}px`,
+                                    cursor: isDragging ? 'grabbing' : 'grab',
+                                    touchAction: 'none'
+                                  }}
+                                  onMouseDown={(e) => handleMouseDown(e)}
+                                >
+                                  <div className="absolute inset-0 border-2 border-white">
+                                    <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none">
+                                      {Array.from({ length: 2 }).map((_, i) => (
+                                        <div key={`v${i}`} className="absolute top-0 bottom-0 border-l border-white border-opacity-50"
+                                             style={{ left: `${((i + 1) * 100) / 3}%` }} />
+                                      ))}
+                                      {Array.from({ length: 2 }).map((_, i) => (
+                                        <div key={`h${i}`} className="absolute left-0 right-0 border-t border-white border-opacity-50"
+                                             style={{ top: `${((i + 1) * 100) / 3}%` }} />
+                                      ))}
+                                    </div>
+                                  </div>
+
+                                  {/* 크기 조절 핸들 */}
+                                  {['nw', 'ne', 'sw', 'se'].map((handle) => (
+                                    <div
+                                      key={handle}
+                                      className="absolute w-4 h-4 bg-white rounded-full border-2 border-gray-800"
+                                      style={{
+                                        top: handle.includes('n') ? '-8px' : 'auto',
+                                        bottom: handle.includes('s') ? '-8px' : 'auto',
+                                        left: handle.includes('w') ? '-8px' : 'auto',
+                                        right: handle.includes('e') ? '-8px' : 'auto',
+                                        cursor: `${handle}-resize`
+                                      }}
+                                      onMouseDown={(e) => {
+                                        e.stopPropagation();
+                                        handleMouseDown(e, handle);
+                                      }}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* 우측: 편집 컨트롤 영역 */}
-                <div className="lg:flex-1 space-y-6 mt-6 lg:mt-0">
-                  <div className="flex lg:flex-col gap-4">
-                    <button
-                      onClick={() => handleEditModeChange('filter')}
-                      className={`flex-1 lg:w-full px-4 py-2 rounded-lg flex items-center gap-2 justify-center ${
-                        editMode === 'filter'
-                          ? 'bg-pink-500 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      <SparklesIcon className="w-5 h-5" />
-                      필터
-                    </button>
-                    <button
-                      onClick={() => handleEditModeChange('adjust')}
-                      className={`flex-1 lg:w-full px-4 py-2 rounded-lg flex items-center gap-2 justify-center ${
-                        editMode === 'adjust'
-                          ? 'bg-pink-500 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      <AdjustmentsHorizontalIcon className="w-5 h-5" />
-                      조정
-                    </button>
-                    <button
-                      onClick={() => handleEditModeChange('transform')}
-                      className={`flex-1 lg:w-full px-4 py-2 rounded-lg flex items-center gap-2 justify-center ${
-                        editMode === 'transform'
-                          ? 'bg-pink-500 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      <ArrowPathIcon className="w-5 h-5" />
-                      변형
-                    </button>
-                    <button
-                      onClick={() => handleEditModeChange('crop')}
-                      className={`flex-1 lg:w-full px-4 py-2 rounded-lg flex items-center gap-2 justify-center ${
-                        editMode === 'crop'
-                          ? 'bg-pink-500 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      <ScissorsIcon className="w-5 h-5" />
-                      자르기
-                    </button>
-                  </div>
+                  {/* 우측: 편집 컨트롤 영역 */}
+                  <div className="lg:flex-1 space-y-3 sm:space-y-6 mt-3 sm:mt-6 lg:mt-0">
+                    <div className="grid grid-cols-4 lg:grid-cols-1 gap-1 sm:gap-4">
+                      <button
+                        onClick={() => handleEditModeChange('filter')}
+                        className={`px-2 py-1.5 sm:px-4 sm:py-2 rounded-lg flex flex-col sm:flex-row items-center gap-1 sm:gap-2 justify-center text-xs sm:text-base ${
+                          editMode === 'filter'
+                            ? 'bg-pink-500 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        <SparklesIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                        필터
+                      </button>
+                      <button
+                        onClick={() => handleEditModeChange('adjust')}
+                        className={`px-2 py-1.5 sm:px-4 sm:py-2 rounded-lg flex flex-col sm:flex-row items-center gap-1 sm:gap-2 justify-center text-xs sm:text-base ${
+                          editMode === 'adjust'
+                            ? 'bg-pink-500 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        <AdjustmentsHorizontalIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                        조정
+                      </button>
+                      <button
+                        onClick={() => handleEditModeChange('transform')}
+                        className={`px-2 py-1.5 sm:px-4 sm:py-2 rounded-lg flex flex-col sm:flex-row items-center gap-1 sm:gap-2 justify-center text-xs sm:text-base ${
+                          editMode === 'transform'
+                            ? 'bg-pink-500 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        <ArrowPathIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                        변형
+                      </button>
+                      <button
+                        onClick={() => handleEditModeChange('crop')}
+                        className={`px-2 py-1.5 sm:px-4 sm:py-2 rounded-lg flex flex-col sm:flex-row items-center gap-1 sm:gap-2 justify-center text-xs sm:text-base ${
+                          editMode === 'crop'
+                            ? 'bg-pink-500 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        <ScissorsIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                        자르기
+                      </button>
+                    </div>
 
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    {editMode === 'filter' && (
-                      <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
-                        {filters.map((filter) => (
-                          <button
-                            key={filter.id}
-                            onClick={() => handleFilter(filter.id)}
-                            disabled={loading}
-                            className="px-4 py-2.5 text-sm font-medium text-white bg-pink-500 rounded-lg hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                          >
-                            {filter.name}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
-                    {editMode === 'adjust' && (
-                      <div className="space-y-4">
-                        {adjustmentOptions.map((adjustment) => (
-                          <div key={adjustment.id}>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              {adjustment.name} ({adjustments[adjustment.id]})
-                            </label>
-                            <input
-                              type="range"
-                              min={adjustment.min}
-                              max={adjustment.max}
-                              value={adjustments[adjustment.id]}
-                              onChange={(e) => handleAdjustment(adjustment.id, parseInt(e.target.value))}
+                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+                      {editMode === 'filter' && (
+                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-1 gap-2 sm:gap-4">
+                          {filters.map((filter) => (
+                            <button
+                              key={filter.id}
+                              onClick={() => handleFilter(filter.id)}
                               disabled={loading}
-                              className="w-full"
-                            />
+                              className="px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-medium text-white bg-pink-500 rounded-lg hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                              {filter.name}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      {editMode === 'adjust' && (
+                        <div className="space-y-3 sm:space-y-4">
+                          {adjustmentOptions.map((adjustment) => (
+                            <div key={adjustment.id}>
+                              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                                {adjustment.name} ({adjustments[adjustment.id]})
+                              </label>
+                              <input
+                                type="range"
+                                min={adjustment.min}
+                                max={adjustment.max}
+                                value={adjustments[adjustment.id]}
+                                onChange={(e) => handleAdjustment(adjustment.id, parseInt(e.target.value))}
+                                disabled={loading}
+                                className="w-full h-1.5 sm:h-2"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {editMode === 'transform' && (
+                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-1 gap-2 sm:gap-4">
+                          <button
+                            onClick={() => handleFlip('horizontal')}
+                            disabled={loading}
+                            className="px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-medium text-white bg-pink-500 rounded-lg hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1 sm:gap-2 justify-center"
+                          >
+                            <ArrowsRightLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                            좌우 반전
+                          </button>
+                          <button
+                            onClick={() => handleFlip('vertical')}
+                            disabled={loading}
+                            className="px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-medium text-white bg-pink-500 rounded-lg hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1 sm:gap-2 justify-center"
+                          >
+                            <ArrowsUpDownIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                            상하 반전
+                          </button>
+                          <div className="col-span-2 lg:col-span-1 grid grid-cols-2 gap-2 sm:gap-4 mt-2 lg:mt-0">
+                            <button
+                              onClick={() => handleRotate('left')}
+                              disabled={loading}
+                              className="relative px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-medium text-white bg-pink-500 rounded-lg hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1 sm:gap-2 justify-center group"
+                            >
+                              <span className="relative flex items-center gap-1 sm:gap-2">
+                                <ArrowPathIcon className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:-rotate-90" />
+                                <span>왼쪽 회전</span>
+                              </span>
+                            </button>
+                            <button
+                              onClick={() => handleRotate('right')}
+                              disabled={loading}
+                              className="relative px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-medium text-white bg-pink-500 rounded-lg hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1 sm:gap-2 justify-center group"
+                            >
+                              <span className="relative flex items-center gap-1 sm:gap-2">
+                                <ArrowPathIcon className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:rotate-90" />
+                                <span>오른쪽 회전</span>
+                              </span>
+                            </button>
                           </div>
-                        ))}
-                      </div>
-                    )}
+                        </div>
+                      )}
 
-                    {editMode === 'transform' && (
-                      <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
-                        <button
-                          onClick={() => handleFlip('horizontal')}
-                          disabled={loading}
-                          className="px-4 py-2.5 text-sm font-medium text-white bg-pink-500 rounded-lg hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 justify-center"
-                        >
-                          <ArrowsRightLeftIcon className="w-5 h-5" />
-                          좌우 반전
-                        </button>
-                        <button
-                          onClick={() => handleFlip('vertical')}
-                          disabled={loading}
-                          className="px-4 py-2.5 text-sm font-medium text-white bg-pink-500 rounded-lg hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 justify-center"
-                        >
-                          <ArrowsUpDownIcon className="w-5 h-5" />
-                          상하 반전
-                        </button>
-                        <button
-                          onClick={() => handleRotate('left')}
-                          disabled={loading}
-                          className="px-4 py-2.5 text-sm font-medium text-white bg-pink-500 rounded-lg hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 justify-center"
-                        >
-                          <ArrowPathIcon className="w-5 h-5 -rotate-90" />
-                          왼쪽으로 회전
-                        </button>
-                        <button
-                          onClick={() => handleRotate('right')}
-                          disabled={loading}
-                          className="px-4 py-2.5 text-sm font-medium text-white bg-pink-500 rounded-lg hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 justify-center"
-                        >
-                          <ArrowPathIcon className="w-5 h-5 rotate-90" />
-                          오른쪽으로 회전
-                        </button>
-                      </div>
-                    )}
-
-                    {editMode === 'crop' && (
-                      <div className="flex justify-center">
-                        <button
-                          onClick={handleCrop}
-                          disabled={loading || !cropMode}
-                          className="w-full px-6 py-2.5 text-base font-medium text-white bg-pink-500 rounded-lg hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        >
-                          자르기 적용
-                        </button>
-                      </div>
-                    )}
+                      {editMode === 'crop' && (
+                        <div className="flex justify-center">
+                          <button
+                            onClick={handleCrop}
+                            disabled={loading || !cropMode}
+                            className="w-full px-4 py-2 sm:px-6 sm:py-2.5 text-sm sm:text-base font-medium text-white bg-pink-500 rounded-lg hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          >
+                            자르기 적용
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
+
+                {/* 다운로드 버튼 영역 */}
+                {editedUrl && (
+                  <div className="mt-4 sm:mt-6 px-2 sm:px-0">
+                    <button
+                      onClick={handleDownload}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 sm:py-4 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white rounded-xl text-sm sm:text-base font-medium transition-colors shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={loading}
+                    >
+                      <ArrowDownTrayIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                      편집한 이미지 다운로드
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>

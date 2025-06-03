@@ -120,16 +120,19 @@ export async function POST(request: NextRequest) {
         const degrees = parseInt(data.get('value') as string);
         
         try {
+          // 이미지 메타데이터 가져오기
+          const metadata = await processedImage.metadata();
+          
           // 회전 처리
-          const rotatedBuffer = await processedImage
+          processedImage = processedImage
             .rotate(degrees, {
-              background: { r: 255, g: 255, b: 255, alpha: 0 }
+              background: { r: 0, g: 0, b: 0, alpha: 0 }
             })
+            .withMetadata();  // 메타데이터 유지
+
+          const rotatedBuffer = await processedImage
             .jpeg({ quality: 90 })
             .toBuffer();
-
-          // 회전된 이미지의 메타데이터 가져오기
-          const rotatedMetadata = await sharp(rotatedBuffer).metadata();
 
           return new NextResponse(rotatedBuffer, {
             headers: {
@@ -139,7 +142,10 @@ export async function POST(request: NextRequest) {
           });
         } catch (error) {
           console.error('Error during rotation:', error);
-          throw error;
+          return NextResponse.json(
+            { error: '이미지 회전 중 오류가 발생했습니다.' },
+            { status: 500 }
+          );
         }
       }
 

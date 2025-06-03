@@ -42,10 +42,16 @@ export default function Rotate() {
 
     setIsProcessing(true);
     try {
+      // 회전 각도 계산
+      const newRotation = direction === 'left' ? 
+        (rotation - 90 + 360) % 360 : 
+        (rotation + 90) % 360;
+      setRotation(newRotation);
+
       const formData = new FormData();
       formData.append('file', file);
       formData.append('operation', 'rotate');
-      formData.append('value', direction === 'left' ? '-90' : '90');
+      formData.append('value', newRotation.toString());
 
       const response = await fetch('/api/editor', {
         method: 'POST',
@@ -56,11 +62,9 @@ export default function Rotate() {
         throw new Error('이미지 회전 중 오류가 발생했습니다.');
       }
 
-      // 회전된 이미지를 Blob으로 받아서 처리
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       
-      // 이전 URL 정리
       if (previewUrl && previewUrl.startsWith('blob:')) {
         URL.revokeObjectURL(previewUrl);
       }
@@ -150,10 +154,12 @@ export default function Rotate() {
                       setFile(null);
                       setPreview('');
                       setRotation(0);
+                      setPreviewUrl(null);
+                      setUploadedFile(null);
                     }}
-                    className="mobile-button w-full sm:w-auto inline-flex items-center justify-center border border-cyan-500 text-cyan-500 hover:bg-cyan-50"
+                    className="w-full sm:w-auto px-4 py-2 rounded-lg inline-flex items-center justify-center border border-cyan-500 text-cyan-500 hover:bg-cyan-50 transition-colors text-sm"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="mobile-icon mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                     </svg>
                     다른 이미지 편집하기
@@ -164,63 +170,56 @@ export default function Rotate() {
                   <div className="relative max-w-full overflow-hidden rounded-lg bg-gray-100">
                     <div className="relative aspect-[3/2] w-full">
                       <Image
-                        src={preview}
+                        src={previewUrl || preview}
                         alt="Preview"
                         fill
                         className="object-contain"
-                        style={{
-                          transform: `rotate(${rotation}deg)`,
-                          transition: 'transform 0.3s ease-in-out'
-                        }}
+                        unoptimized
+                        priority
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
                   <button
                     onClick={() => handleRotate('left')}
-                    className="mobile-button flex-1 bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    disabled={isProcessing}
+                    className="relative px-4 py-2.5 text-sm font-medium bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 group"
                   >
-                    <ArrowPathIcon className="w-5 h-5 -rotate-90" />
-                    <span className="ml-2">왼쪽으로 90° 회전</span>
+                    <ArrowPathIcon className="w-5 h-5 transition-transform group-hover:-rotate-90" />
+                    <span>왼쪽으로 회전</span>
                   </button>
                   <button
                     onClick={() => handleRotate('right')}
-                    className="mobile-button flex-1 bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    disabled={isProcessing}
+                    className="relative px-4 py-2.5 text-sm font-medium bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 group"
                   >
-                    <ArrowPathIcon className="w-5 h-5 rotate-90" />
-                    <span className="ml-2">오른쪽으로 90° 회전</span>
+                    <ArrowPathIcon className="w-5 h-5 transition-transform group-hover:rotate-90" />
+                    <span>오른쪽으로 회전</span>
                   </button>
                 </div>
 
-                <div className="flex justify-center">
-                  <button
-                    onClick={handleSave}
-                    disabled={loading}
-                    className="mobile-button bg-cyan-500 text-white hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {loading ? '처리 중...' : '회전 적용하기'}
-                  </button>
-                </div>
-
-                {loading && (
-                  <div className="text-center py-6 sm:py-8">
-                    <div className="relative w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3">
-                      <div className="absolute inset-0 rounded-full border-3 border-cyan-200 opacity-25"></div>
-                      <div className="absolute inset-0 rounded-full border-3 border-t-cyan-500 animate-spin"></div>
+                {isProcessing && (
+                  <div className="text-center py-4">
+                    <div className="relative w-10 h-10 mx-auto mb-2">
+                      <div className="absolute inset-0 rounded-full border-2 border-cyan-200 opacity-25"></div>
+                      <div className="absolute inset-0 rounded-full border-2 border-t-cyan-500 animate-spin"></div>
                     </div>
-                    <p className="text-sm sm:text-base text-gray-600">이미지 회전 중...</p>
+                    <p className="text-sm text-gray-600">이미지 회전 중...</p>
                   </div>
                 )}
 
-                {rotatedUrl && (
+                {previewUrl && !isProcessing && (
                   <div className="flex justify-center">
                     <a
-                      href={rotatedUrl}
-                      download="rotated-image"
-                      className="mobile-button bg-green-500 text-white hover:bg-green-600"
+                      href={previewUrl}
+                      download={`rotated-${file?.name || 'image.jpg'}`}
+                      className="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-lg text-sm font-medium transition-colors shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
                     >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
                       회전된 이미지 다운로드
                     </a>
                   </div>
