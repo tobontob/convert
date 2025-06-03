@@ -1,8 +1,8 @@
+'use client';
+
 import { editorMetadata } from '../metadata';
 
 export const metadata = editorMetadata;
-
-'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';

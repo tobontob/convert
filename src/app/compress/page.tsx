@@ -1,8 +1,8 @@
+'use client';
+
 import { compressMetadata } from '../metadata';
 
 export const metadata = compressMetadata;
-
-'use client';
 
 import { useState } from 'react';
 import ImageUploader from '@/components/ImageUploader';

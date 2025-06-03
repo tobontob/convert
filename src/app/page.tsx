@@ -1,8 +1,8 @@
+'use client';
+
 import { homeMetadata } from './metadata';
 
 export const metadata = homeMetadata;
-
-'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
