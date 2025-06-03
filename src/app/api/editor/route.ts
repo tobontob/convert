@@ -118,19 +118,98 @@ export async function POST(request: NextRequest) {
 
       case 'rotate': {
         const degrees = parseInt(data.get('value') as string);
-        processedImage = processedImage.rotate(degrees);
-        break;
+        
+        try {
+          // 회전 처리
+          const rotatedBuffer = await processedImage
+            .rotate(degrees, {
+              background: { r: 255, g: 255, b: 255, alpha: 0 }
+            })
+            .jpeg({ quality: 90 })
+            .toBuffer();
+
+          // 회전된 이미지의 메타데이터 가져오기
+          const rotatedMetadata = await sharp(rotatedBuffer).metadata();
+
+          return new NextResponse(rotatedBuffer, {
+            headers: {
+              'Content-Type': 'image/jpeg',
+              'Content-Length': rotatedBuffer.length.toString(),
+            },
+          });
+        } catch (error) {
+          console.error('Error during rotation:', error);
+          throw error;
+        }
       }
 
       case 'crop': {
         const options = JSON.parse(data.get('options') as string);
-        processedImage = processedImage.extract({
-          left: options.left,
-          top: options.top,
-          width: options.cropWidth,
-          height: options.cropHeight
-        });
-        break;
+        
+        try {
+          // 이미지 메타데이터 가져오기
+          const metadata = await processedImage.metadata();
+          if (!metadata.width || !metadata.height) {
+            throw new Error('이미지 크기 정보를 가져올 수 없습니다.');
+          }
+
+          // 회전 정보 확인
+          const orientation = metadata.orientation || 1;
+          const isRotated = orientation >= 5 && orientation <= 8;
+
+          // 회전된 이미지의 실제 크기 계산
+          let actualWidth = metadata.width;
+          let actualHeight = metadata.height;
+          
+          if (isRotated) {
+            [actualWidth, actualHeight] = [actualHeight, actualWidth];
+          }
+
+          // 크롭 영역이 이미지 범위를 벗어나지 않도록 보정
+          const left = Math.max(0, Math.min(options.left, actualWidth - 1));
+          const top = Math.max(0, Math.min(options.top, actualHeight - 1));
+          const width = Math.max(1, Math.min(options.cropWidth, actualWidth - left));
+          const height = Math.max(1, Math.min(options.cropHeight, actualHeight - top));
+
+          // 회전 정보를 고려한 크롭 처리
+          let croppedImage = processedImage;
+          
+          // 자동 회전 적용
+          if (orientation) {
+            croppedImage = croppedImage.rotate();
+          }
+
+          // 크롭 처리
+          const croppedBuffer = await croppedImage
+            .extract({
+              left,
+              top,
+              width,
+              height
+            })
+            .withMetadata()  // 메타데이터 유지
+            .jpeg({ quality: 90 })
+            .toBuffer();
+
+          // 크롭된 이미지의 메타데이터 확인
+          const croppedMetadata = await sharp(croppedBuffer).metadata();
+          if (!croppedMetadata.width || !croppedMetadata.height) {
+            throw new Error('크롭된 이미지 크기 정보를 가져올 수 없습니다.');
+          }
+
+          return new NextResponse(croppedBuffer, {
+            headers: {
+              'Content-Type': 'image/jpeg',
+              'Content-Length': croppedBuffer.length.toString(),
+            },
+          });
+        } catch (error) {
+          console.error('Error during cropping:', error);
+          return NextResponse.json(
+            { error: error instanceof Error ? error.message : '이미지 자르기 중 오류가 발생했습니다.' },
+            { status: 500 }
+          );
+        }
       }
 
       default:

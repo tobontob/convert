@@ -272,14 +272,14 @@ export default function Editor() {
     }
   };
 
-  const handleRotate = async (degrees: number) => {
+  const handleRotate = async (direction: 'left' | 'right') => {
     if (!editHistory) return;
 
     setLoading(true);
     const formData = new FormData();
     formData.append('file', editHistory);
     formData.append('operation', 'rotate');
-    formData.append('value', degrees.toString());
+    formData.append('value', direction === 'left' ? '-90' : '90');
 
     try {
       const response = await fetch('/api/editor', {
@@ -287,8 +287,11 @@ export default function Editor() {
         body: formData,
       });
 
-      if (!response.ok) throw new Error('회전 중 오류가 발생했습니다.');
+      if (!response.ok) {
+        throw new Error('이미지 회전 중 오류가 발생했습니다.');
+      }
 
+      // 회전된 이미지를 Blob으로 받아서 처리
       const blob = await response.blob();
       const editedFile = new File([blob], 'edited.jpg', { type: 'image/jpeg' });
       setEditHistory(editedFile);
@@ -296,11 +299,17 @@ export default function Editor() {
       const url = URL.createObjectURL(blob);
       setEditedUrl(url);
       setPreview(url);
-      
+
+      // 이전 URL 정리
+      if (editedUrl && editedUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(editedUrl);
+      }
+
+      // 히스토리 업데이트
       updateEditHistory(editedFile, url);
     } catch (error) {
       console.error('Error:', error);
-      alert('이미지 회전 중 오류가 발생했습니다.');
+      alert(error instanceof Error ? error.message : '이미지 회전 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }
@@ -309,13 +318,18 @@ export default function Editor() {
   // 자르기 영역 초기화
   const initializeCropArea = useCallback(() => {
     if (imageRef.current) {
-      const rect = imageRef.current.getBoundingClientRect();
-      setDisplaySize({ width: rect.width, height: rect.height });
+      const img = imageRef.current;
+      const rect = img.getBoundingClientRect();
+      const containerWidth = rect.width;
+      const containerHeight = rect.height;
       
-      const width = rect.width * 0.8;
-      const height = rect.height * 0.8;
-      const x = (rect.width - width) / 2;
-      const y = (rect.height - height) / 2;
+      // 초기 크롭 영역을 이미지 중앙에 80% 크기로 설정
+      const width = containerWidth * 0.8;
+      const height = containerHeight * 0.8;
+      const x = (containerWidth - width) / 2;
+      const y = (containerHeight - height) / 2;
+      
+      setDisplaySize({ width: containerWidth, height: containerHeight });
       setCropData({ x, y, width, height });
     }
   }, []);
@@ -329,40 +343,101 @@ export default function Editor() {
 
   // 자르기 함수 수정
   const handleCrop = async () => {
-    if (!cropMode || !editHistory || !imageSize.width || !imageSize.height) return;
+    if (!cropMode || !editHistory || !imageRef.current) return;
     
-    // 표시 크기와 실제 이미지 크기의 비율 계산
-    const scaleX = imageSize.width / displaySize.width;
-    const scaleY = imageSize.height / displaySize.height;
-    
-    // 선택한 영역을 실제 이미지 크기 기준으로 변환
-    const options = {
-      left: Math.round(cropData.x * scaleX),
-      top: Math.round(cropData.y * scaleY),
-      cropWidth: Math.round(cropData.width * scaleX),
-      cropHeight: Math.round(cropData.height * scaleY)
-    };
-
-    // 잘라낼 영역이 실제 이미지 범위를 벗어나지 않도록 보정
-    options.left = Math.max(0, Math.min(options.left, imageSize.width - options.cropWidth));
-    options.top = Math.max(0, Math.min(options.top, imageSize.height - options.cropHeight));
-    options.cropWidth = Math.min(options.cropWidth, imageSize.width - options.left);
-    options.cropHeight = Math.min(options.cropHeight, imageSize.height - options.top);
-    
-    setLoading(true);
-    const formData = new FormData();
-    formData.append('file', editHistory);
-    formData.append('operation', 'crop');
-    formData.append('value', '0');
-    formData.append('options', JSON.stringify(options));
-
     try {
+      // 이미지의 실제 크기와 표시 크기 가져오기
+      const img = imageRef.current;
+      const displayRect = img.getBoundingClientRect();
+
+      // 이미지 로드 및 실제 크기 가져오기
+      await new Promise<void>((resolve, reject) => {
+        const actualImage = document.createElement('img');
+        actualImage.onload = () => {
+          // 이미지의 회전 상태를 확인하기 위해 메타데이터를 가져옴
+          fetch('/api/editor/metadata', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ imageUrl: preview }),
+          })
+          .then(response => response.json())
+          .then(metadata => {
+            const orientation = metadata.orientation || 1;
+            const isRotated = orientation >= 5 && orientation <= 8;
+            
+            // 회전 상태에 따른 실제 크기 계산
+            let actualWidth = actualImage.naturalWidth;
+            let actualHeight = actualImage.naturalHeight;
+            
+            if (isRotated) {
+              [actualWidth, actualHeight] = [actualHeight, actualWidth];
+            }
+
+            // 표시 크기와 실제 크기의 비율 계산
+            const scaleX = actualWidth / displayRect.width;
+            const scaleY = actualHeight / displayRect.height;
+
+            // 선택한 영역을 실제 이미지 크기 기준으로 변환
+            const options = {
+              left: Math.round(cropData.x * scaleX),
+              top: Math.round(cropData.y * scaleY),
+              cropWidth: Math.round(cropData.width * scaleX),
+              cropHeight: Math.round(cropData.height * scaleY),
+              orientation: orientation
+            };
+
+            // 잘라낼 영역이 실제 이미지 범위를 벗어나지 않도록 보정
+            options.left = Math.max(0, Math.min(options.left, actualWidth - 1));
+            options.top = Math.max(0, Math.min(options.top, actualHeight - 1));
+            options.cropWidth = Math.max(1, Math.min(options.cropWidth, actualWidth - options.left));
+            options.cropHeight = Math.max(1, Math.min(options.cropHeight, actualHeight - options.top));
+
+            resolve();
+            processCrop(options);
+          })
+          .catch(error => {
+            reject(new Error('이미지 메타데이터를 가져오는 중 오류가 발생했습니다.'));
+          });
+        };
+        actualImage.onerror = () => reject(new Error('이미지 로드 중 오류가 발생했습니다.'));
+        actualImage.src = preview;
+      });
+    } catch (error) {
+      console.error('Error:', error);
+      alert(error instanceof Error ? error.message : '이미지 자르기 중 오류가 발생했습니다.');
+      setLoading(false);
+      setCropMode(false);
+    }
+  };
+
+  // 실제 크롭 처리를 수행하는 함수
+  const processCrop = async (options: { 
+    left: number; 
+    top: number; 
+    cropWidth: number; 
+    cropHeight: number;
+    orientation: number;
+  }) => {
+    if (!editHistory) return;
+    
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append('file', editHistory);
+      formData.append('operation', 'crop');
+      formData.append('options', JSON.stringify(options));
+
       const response = await fetch('/api/editor', {
         method: 'POST',
         body: formData,
       });
 
-      if (!response.ok) throw new Error('자르기 중 오류가 발생했습니다.');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '이미지 자르기 중 오류가 발생했습니다.');
+      }
 
       const blob = await response.blob();
       const editedFile = new File([blob], 'edited.jpg', { type: 'image/jpeg' });
@@ -372,17 +447,23 @@ export default function Editor() {
       setEditedUrl(url);
       setPreview(url);
       
-      updateEditHistory(editedFile, url);
-
-      // 새로운 이미지 크기 업데이트
-      const img = document.createElement('img');
-      img.onload = () => {
-        setImageSize({ width: img.naturalWidth, height: img.naturalHeight });
-      };
-      img.src = url;
+      // 새로운 이미지 크기로 업데이트
+      await new Promise<void>((resolve, reject) => {
+        const newImage = document.createElement('img');
+        newImage.onload = () => {
+          setImageSize({
+            width: newImage.naturalWidth,
+            height: newImage.naturalHeight
+          });
+          updateEditHistory(editedFile, url);
+          resolve();
+        };
+        newImage.onerror = () => reject(new Error('이미지 크기 업데이트 중 오류가 발생했습니다.'));
+        newImage.src = url;
+      });
     } catch (error) {
       console.error('Error:', error);
-      alert('이미지 자르기 중 오류가 발생했습니다.');
+      alert(error instanceof Error ? error.message : '이미지 자르기 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
       setCropMode(false);
@@ -405,8 +486,8 @@ export default function Editor() {
     if (!cropMode || !imageRef.current) return;
     
     e.preventDefault();
-    
     const imageRect = imageRef.current.getBoundingClientRect();
+    const cropRect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     
     if (handle) {
       // 크기 조절 핸들을 잡은 경우
@@ -418,8 +499,8 @@ export default function Editor() {
     } else {
       // 영역 이동을 위한 드래그 시작
       setDragStartPos({
-        x: e.clientX - cropData.x,
-        y: e.clientY - cropData.y
+        x: e.clientX - cropRect.left,
+        y: e.clientY - cropRect.top
       });
     }
     setIsDragging(true);
@@ -429,7 +510,6 @@ export default function Editor() {
     if (!isDragging || !cropMode || !imageRef.current) return;
 
     e.preventDefault();
-    
     const imageRect = imageRef.current.getBoundingClientRect();
 
     if (resizeHandle) {
@@ -441,51 +521,36 @@ export default function Editor() {
       switch (resizeHandle) {
         case 'nw':
           newCropData = {
-            x: cropData.x + deltaX,
-            y: cropData.y + deltaY,
-            width: cropData.width - deltaX,
-            height: cropData.height - deltaY
+            x: Math.min(cropData.x + deltaX, cropData.x + cropData.width - 50),
+            y: Math.min(cropData.y + deltaY, cropData.y + cropData.height - 50),
+            width: Math.max(50, cropData.width - deltaX),
+            height: Math.max(50, cropData.height - deltaY)
           };
           break;
         case 'ne':
           newCropData = {
             x: cropData.x,
-            y: cropData.y + deltaY,
-            width: cropData.width + deltaX,
-            height: cropData.height - deltaY
+            y: Math.min(cropData.y + deltaY, cropData.y + cropData.height - 50),
+            width: Math.max(50, cropData.width + deltaX),
+            height: Math.max(50, cropData.height - deltaY)
           };
           break;
         case 'sw':
           newCropData = {
-            x: cropData.x + deltaX,
+            x: Math.min(cropData.x + deltaX, cropData.x + cropData.width - 50),
             y: cropData.y,
-            width: cropData.width - deltaX,
-            height: cropData.height + deltaY
+            width: Math.max(50, cropData.width - deltaX),
+            height: Math.max(50, cropData.height + deltaY)
           };
           break;
         case 'se':
           newCropData = {
             x: cropData.x,
             y: cropData.y,
-            width: cropData.width + deltaX,
-            height: cropData.height + deltaY
+            width: Math.max(50, cropData.width + deltaX),
+            height: Math.max(50, cropData.height + deltaY)
           };
           break;
-      }
-
-      // 최소 크기 제한
-      const minSize = 50;
-      if (newCropData.width < minSize) {
-        if (resizeHandle.includes('w')) {
-          newCropData.x = cropData.x + cropData.width - minSize;
-        }
-        newCropData.width = minSize;
-      }
-      if (newCropData.height < minSize) {
-        if (resizeHandle.includes('n')) {
-          newCropData.y = cropData.y + cropData.height - minSize;
-        }
-        newCropData.height = minSize;
       }
 
       // 이미지 범위 제한
@@ -498,8 +563,10 @@ export default function Editor() {
       setDragStartPos({ x: e.clientX, y: e.clientY });
     } else {
       // 영역 이동 로직
-      const newX = e.clientX - dragStartPos.x;
-      const newY = e.clientY - dragStartPos.y;
+      const mouseX = e.clientX - imageRect.left;
+      const mouseY = e.clientY - imageRect.top;
+      const newX = mouseX - dragStartPos.x;
+      const newY = mouseY - dragStartPos.y;
 
       // 이미지 범위 내로 제한
       const boundedX = Math.max(0, Math.min(newX, imageRect.width - cropData.width));
@@ -778,67 +845,74 @@ export default function Editor() {
                       </div>
                     )}
                     
-                    <div className="relative aspect-[3/2] w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-                      <Image
-                        ref={imageRef}
-                        src={preview}
-                        alt="Preview"
-                        fill
-                        className="object-contain"
-                        onLoad={handleImageLoad}
-                        priority
-                      />
-                      {cropMode && (
-                        <div 
-                          className="absolute inset-0 bg-black bg-opacity-50"
-                          style={{ cursor: isDragging ? (resizeHandle ? 'grabbing' : 'move') : 'default' }}
-                        >
-                          <div
-                            ref={cropAreaRef}
-                            className={`absolute select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-                            style={{
-                              left: `${cropData.x}px`,
-                              top: `${cropData.y}px`,
-                              width: `${cropData.width}px`,
-                              height: `${cropData.height}px`,
-                              touchAction: 'none'
-                            }}
-                            onMouseDown={(e) => handleMouseDown(e)}
-                          >
-                            <div className="absolute inset-0 border-2 border-white">
-                              <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none">
-                                {Array.from({ length: 2 }).map((_, i) => (
-                                  <div key={`v${i}`} className="absolute top-0 bottom-0 border-l border-white border-opacity-50"
-                                       style={{ left: `${((i + 1) * 100) / 3}%` }} />
-                                ))}
-                                {Array.from({ length: 2 }).map((_, i) => (
-                                  <div key={`h${i}`} className="absolute left-0 right-0 border-t border-white border-opacity-50"
-                                       style={{ top: `${((i + 1) * 100) / 3}%` }} />
+                    <div className="bg-gray-50 rounded-xl p-3 sm:p-6">
+                      <div className="relative max-w-full overflow-hidden rounded-lg bg-gray-100">
+                        <div className="relative aspect-[3/2] w-full">
+                          <Image
+                            ref={imageRef}
+                            src={preview}
+                            alt="Preview"
+                            fill
+                            className="object-contain"
+                            onLoad={handleImageLoad}
+                            priority
+                            unoptimized
+                            draggable={false}
+                          />
+                          {cropMode && (
+                            <div 
+                              className="absolute inset-0 bg-black bg-opacity-50"
+                              style={{ cursor: isDragging ? (resizeHandle ? 'grabbing' : 'move') : 'default' }}
+                            >
+                              <div
+                                ref={cropAreaRef}
+                                className="absolute select-none"
+                                style={{
+                                  left: `${cropData.x}px`,
+                                  top: `${cropData.y}px`,
+                                  width: `${cropData.width}px`,
+                                  height: `${cropData.height}px`,
+                                  cursor: isDragging ? 'grabbing' : 'grab',
+                                  touchAction: 'none'
+                                }}
+                                onMouseDown={(e) => handleMouseDown(e)}
+                              >
+                                <div className="absolute inset-0 border-2 border-white">
+                                  <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none">
+                                    {Array.from({ length: 2 }).map((_, i) => (
+                                      <div key={`v${i}`} className="absolute top-0 bottom-0 border-l border-white border-opacity-50"
+                                           style={{ left: `${((i + 1) * 100) / 3}%` }} />
+                                    ))}
+                                    {Array.from({ length: 2 }).map((_, i) => (
+                                      <div key={`h${i}`} className="absolute left-0 right-0 border-t border-white border-opacity-50"
+                                           style={{ top: `${((i + 1) * 100) / 3}%` }} />
+                                    ))}
+                                  </div>
+                                </div>
+
+                                {/* 크기 조절 핸들 */}
+                                {['nw', 'ne', 'sw', 'se'].map((handle) => (
+                                  <div
+                                    key={handle}
+                                    className="absolute w-4 h-4 bg-white rounded-full border-2 border-gray-800"
+                                    style={{
+                                      top: handle.includes('n') ? '-8px' : 'auto',
+                                      bottom: handle.includes('s') ? '-8px' : 'auto',
+                                      left: handle.includes('w') ? '-8px' : 'auto',
+                                      right: handle.includes('e') ? '-8px' : 'auto',
+                                      cursor: `${handle}-resize`
+                                    }}
+                                    onMouseDown={(e) => {
+                                      e.stopPropagation();
+                                      handleMouseDown(e, handle);
+                                    }}
+                                  />
                                 ))}
                               </div>
                             </div>
-
-                            {/* 크기 조절 핸들 */}
-                            {['nw', 'ne', 'sw', 'se'].map((handle) => (
-                              <div
-                                key={handle}
-                                className="absolute w-4 h-4 bg-white rounded-full border-2 border-gray-800"
-                                style={{
-                                  top: handle.includes('n') ? '-8px' : 'auto',
-                                  bottom: handle.includes('s') ? '-8px' : 'auto',
-                                  left: handle.includes('w') ? '-8px' : 'auto',
-                                  right: handle.includes('e') ? '-8px' : 'auto',
-                                  cursor: `${handle}-resize`
-                                }}
-                                onMouseDown={(e) => {
-                                  e.stopPropagation();
-                                  handleMouseDown(e, handle);
-                                }}
-                              />
-                            ))}
-                          </div>
+                          )}
                         </div>
-                      )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -948,7 +1022,7 @@ export default function Editor() {
                           상하 반전
                         </button>
                         <button
-                          onClick={() => handleRotate(-90)}
+                          onClick={() => handleRotate('left')}
                           disabled={loading}
                           className="px-4 py-2.5 text-sm font-medium text-white bg-pink-500 rounded-lg hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 justify-center"
                         >
@@ -956,7 +1030,7 @@ export default function Editor() {
                           왼쪽으로 회전
                         </button>
                         <button
-                          onClick={() => handleRotate(90)}
+                          onClick={() => handleRotate('right')}
                           disabled={loading}
                           className="px-4 py-2.5 text-sm font-medium text-white bg-pink-500 rounded-lg hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 justify-center"
                         >

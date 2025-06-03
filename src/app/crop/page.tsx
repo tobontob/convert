@@ -55,47 +55,32 @@ export default function CropPage() {
           const isLarge = img.naturalWidth > containerWidth || img.naturalHeight > containerHeight;
           setIsLargeImage(isLarge);
 
-          if (isLarge) {
-            // 이미지의 가로세로 비율 계산
-            const imageRatio = img.naturalWidth / img.naturalHeight;
-            const containerRatio = containerWidth / containerHeight;
+          // 이미지 비율 유지하면서 초기 크롭 영역 설정
+          const imageRatio = img.naturalWidth / img.naturalHeight;
+          let cropWidth, cropHeight;
 
-            // 이미지가 가로로 더 긴 경우와 세로로 더 긴 경우를 구분하여 처리
-            if (imageRatio > containerRatio) {
+          if (isLarge) {
+            if (imageRatio > 1) {
               // 가로가 더 긴 경우
-              const width = Math.min(img.naturalWidth, containerWidth);
-              const height = Math.min(img.naturalHeight, containerHeight);
-              setCrop({
-                unit: 'px',
-                x: (width - Math.min(300, width)) / 2,
-                y: (height - Math.min(300, height)) / 2,
-                width: Math.min(300, width),
-                height: Math.min(300, height),
-              });
+              cropWidth = Math.min(300, containerWidth);
+              cropHeight = cropWidth / imageRatio;
             } else {
               // 세로가 더 긴 경우
-              const height = Math.min(img.naturalHeight, containerHeight);
-              const width = Math.min(img.naturalWidth, (height * img.naturalWidth) / img.naturalHeight);
-              setCrop({
-                unit: 'px',
-                x: (width - Math.min(300, width)) / 2,
-                y: (height - Math.min(300, height)) / 2,
-                width: Math.min(300, width),
-                height: Math.min(300, height),
-              });
+              cropHeight = Math.min(300, containerHeight);
+              cropWidth = cropHeight * imageRatio;
             }
           } else {
-            // 작은 이미지는 기존과 동일하게 처리
-            const width = Math.min(img.naturalWidth, 300);
-            const height = Math.min(img.naturalHeight, 300);
-            setCrop({
-              unit: 'px',
-              x: (img.naturalWidth - width) / 2,
-              y: (img.naturalHeight - height) / 2,
-              width,
-              height,
-            });
+            cropWidth = Math.min(img.naturalWidth, 300);
+            cropHeight = cropWidth / imageRatio;
           }
+
+          setCrop({
+            unit: 'px',
+            x: (containerWidth - cropWidth) / 2,
+            y: (containerHeight - cropHeight) / 2,
+            width: cropWidth,
+            height: cropHeight,
+          });
         }
       };
       img.src = reader.result as string;
@@ -106,22 +91,35 @@ export default function CropPage() {
   const handleCrop = async () => {
     if (!uploadedFile || !completedCrop || !imgRef.current || !naturalSize) return;
 
-    // 실제 이미지 크기와 화면에 표시된 이미지 크기의 비율 계산
+    // 회전된 이미지의 실제 크기 가져오기
+    const rotatedImage = new Image();
+    await new Promise((resolve) => {
+      rotatedImage.onload = resolve;
+      rotatedImage.src = imgRef.current!.src;
+    });
+
+    // 화면에 표시된 이미지의 크기
     const displayWidth = imgRef.current.width;
     const displayHeight = imgRef.current.height;
-    const scaleX = naturalSize.width / displayWidth;
-    const scaleY = naturalSize.height / displayHeight;
+
+    // 실제 이미지와 표시된 이미지의 비율 계산
+    const scaleX = rotatedImage.naturalWidth / displayWidth;
+    const scaleY = rotatedImage.naturalHeight / displayHeight;
 
     setIsProcessing(true);
     try {
       const formData = new FormData();
       formData.append('image', uploadedFile);
-      formData.append('crop', JSON.stringify({
+
+      // 크롭 좌표를 실제 이미지 크기에 맞게 조정
+      const cropData = {
         x: Math.round(completedCrop.x * scaleX),
         y: Math.round(completedCrop.y * scaleY),
         width: Math.round(completedCrop.width * scaleX),
-        height: Math.round(completedCrop.height * scaleY),
-      }));
+        height: Math.round(completedCrop.height * scaleY)
+      };
+
+      formData.append('crop', JSON.stringify(cropData));
 
       const response = await fetch('/api/crop', {
         method: 'POST',

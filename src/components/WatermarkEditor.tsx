@@ -73,16 +73,31 @@ export default function WatermarkEditor({ baseImage, onSave }: WatermarkEditorPr
   const addImageWatermark = async (file: File) => {
     const reader = new FileReader();
     reader.onload = (e) => {
-      const newWatermark: WatermarkItem = {
-        id: Date.now().toString(),
-        type: 'image',
-        content: e.target?.result as string,
-        position: { x: 50, y: 50 },
-        size: { width: 100, height: 100 },
-        style: { opacity }
+      // 이미지 비율 계산을 위한 임시 이미지 생성
+      const img = new Image();
+      img.onload = () => {
+        // 원본 이미지의 비율 계산
+        const aspectRatio = img.width / img.height;
+        
+        // 기본 너비를 100으로 설정하고 높이는 비율에 맞게 조정
+        const defaultWidth = 100;
+        const defaultHeight = defaultWidth / aspectRatio;
+
+        const newWatermark: WatermarkItem = {
+          id: Date.now().toString(),
+          type: 'image',
+          content: e.target?.result as string,
+          position: { x: 50, y: 50 },
+          size: { 
+            width: defaultWidth,
+            height: defaultHeight
+          },
+          style: { opacity }
+        };
+        setWatermarks([...watermarks, newWatermark]);
+        setSelectedWatermark(newWatermark.id);
       };
-      setWatermarks([...watermarks, newWatermark]);
-      setSelectedWatermark(newWatermark.id);
+      img.src = e.target?.result as string;
     };
     reader.readAsDataURL(file);
   };
@@ -113,71 +128,112 @@ export default function WatermarkEditor({ baseImage, onSave }: WatermarkEditorPr
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // 기본 이미지 로드
-    const loadBaseImage = () => {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => {
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx.drawImage(img, 0, 0);
-          resolve(true);
-        };
-        img.src = baseImage;
-      });
-    };
+    // 기본 이미지 로드 및 크기 설정
+    const baseImageElement = new Image();
+    await new Promise((resolve) => {
+      baseImageElement.onload = () => {
+        // 캔버스 크기를 이미지 크기로 설정
+        canvas.width = baseImageElement.naturalWidth;
+        canvas.height = baseImageElement.naturalHeight;
+        
+        // 이미지를 캔버스에 그리기
+        ctx.drawImage(baseImageElement, 0, 0);
+        resolve(true);
+      };
+      baseImageElement.src = baseImage;
+    });
 
-    // 워터마크 이미지 로드
-    const loadWatermarkImage = (watermark: WatermarkItem) => {
-      return new Promise((resolve) => {
-        const watermarkImg = new Image();
-        watermarkImg.onload = () => {
-          ctx.globalAlpha = watermark.style?.opacity || 1;
-          ctx.drawImage(
-            watermarkImg,
-            watermark.position.x,
-            watermark.position.y,
-            watermark.size.width,
-            watermark.size.height
-          );
-          resolve(true);
-        };
-        watermarkImg.src = watermark.content;
-      });
-    };
+    // 스케일 계산을 위한 참조 이미지 요소 찾기
+    const displayedImage = document.querySelector('img[alt="base"]') as HTMLImageElement;
+    if (!displayedImage) return;
 
-    try {
-      // 기본 이미지 그리기
-      await loadBaseImage();
+    // 스케일 비율 계산
+    const scaleX = baseImageElement.naturalWidth / displayedImage.offsetWidth;
+    const scaleY = baseImageElement.naturalHeight / displayedImage.offsetHeight;
 
-      // 워터마크 순차적으로 그리기
-      for (const watermark of watermarks) {
-        if (watermark.type === 'text') {
-          // 텍스트 워터마크 그리기
-          ctx.font = `${watermark.style?.fontSize}px ${watermark.style?.fontFamily}`;
-          ctx.fillStyle = watermark.style?.color || '#FFFFFF';
-          ctx.globalAlpha = watermark.style?.opacity || 1;
-          ctx.fillText(
-            watermark.content,
-            watermark.position.x,
-            watermark.position.y + (watermark.style?.fontSize || 24)
-          );
-        } else {
-          // 이미지 워터마크 그리기
-          await loadWatermarkImage(watermark);
-        }
+    // 워터마크 순차적으로 그리기
+    for (const watermark of watermarks) {
+      if (watermark.type === 'text') {
+        // 텍스트 워터마크
+        const fontSize = (watermark.style?.fontSize || 24) * scaleX;
+        ctx.font = `${fontSize}px ${watermark.style?.fontFamily || 'Arial'}`;
+        ctx.fillStyle = watermark.style?.color || '#FFFFFF';
+        ctx.globalAlpha = watermark.style?.opacity || 1;
+
+        const scaledX = watermark.position.x * scaleX;
+        const scaledY = watermark.position.y * scaleY + fontSize; // 폰트 크기만큼 조정
+
+        ctx.fillText(watermark.content, scaledX, scaledY);
+      } else {
+        // 이미지 워터마크
+        await new Promise((resolve) => {
+          const watermarkImg = new Image();
+          watermarkImg.onload = () => {
+            ctx.globalAlpha = watermark.style?.opacity || 1;
+            const scaledX = watermark.position.x * scaleX;
+            const scaledY = watermark.position.y * scaleY;
+            const scaledWidth = watermark.size.width * scaleX;
+            const scaledHeight = watermark.size.height * scaleY;
+
+            ctx.drawImage(
+              watermarkImg,
+              scaledX,
+              scaledY,
+              scaledWidth,
+              scaledHeight
+            );
+            resolve(true);
+          };
+          watermarkImg.src = watermark.content;
+        });
       }
-
-      // 최종 이미지 저장
-      onSave(canvas.toDataURL());
-    } catch (error) {
-      console.error('Error saving watermarked image:', error);
+      // 투명도 초기화
+      ctx.globalAlpha = 1;
     }
+
+    // 최종 이미지를 고품질 PNG로 저장
+    const finalImage = canvas.toDataURL('image/png', 1.0);
+    onSave(finalImage);
   };
 
   // 편집 모드 해제 핸들러
   const handleClickOutside = (e: React.MouseEvent) => {
     setEditingText(null);
+  };
+
+  // Rnd 컴포넌트의 onResize 핸들러 수정
+  const handleWatermarkResize = (
+    watermark: WatermarkItem,
+    ref: HTMLElement,
+    position: { x: number; y: number }
+  ) => {
+    if (watermark.type === 'image') {
+      // 이미지의 경우 비율 계산
+      const img = new Image();
+      img.onload = () => {
+        const aspectRatio = img.width / img.height;
+        const newWidth = ref.offsetWidth;
+        const newHeight = newWidth / aspectRatio;
+
+        updateWatermark(watermark.id, {
+          size: {
+            width: newWidth,
+            height: newHeight
+          },
+          position
+        });
+      };
+      img.src = watermark.content;
+    } else {
+      // 텍스트의 경우 기존 로직 유지
+      updateWatermark(watermark.id, {
+        size: {
+          width: ref.offsetWidth,
+          height: ref.offsetHeight
+        },
+        position
+      });
+    }
   };
 
   return (
@@ -288,13 +344,7 @@ export default function WatermarkEditor({ baseImage, onSave }: WatermarkEditorPr
               });
             }}
             onResize={(e, direction, ref, delta, position) => {
-              updateWatermark(watermark.id, {
-                size: {
-                  width: ref.offsetWidth,
-                  height: ref.offsetHeight
-                },
-                position
-              });
+              handleWatermarkResize(watermark, ref, position);
             }}
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
@@ -316,7 +366,17 @@ export default function WatermarkEditor({ baseImage, onSave }: WatermarkEditorPr
               bottomRight: 'opacity-0 group-hover:opacity-100 transition-opacity',
               bottomLeft: 'opacity-0 group-hover:opacity-100 transition-opacity'
             }}
-            enableResizing={selectedWatermark === watermark.id}
+            enableResizing={watermark.type === 'text' ? selectedWatermark === watermark.id : {
+              top: false,
+              right: true,
+              bottom: false,
+              left: false,
+              topRight: false,
+              bottomRight: true,
+              bottomLeft: false,
+              topLeft: false
+            }}
+            lockAspectRatio={watermark.type === 'image'}
             disableDragging={watermark.type === 'text' && editingText === watermark.id}
           >
             {watermark.type === 'text' ? (

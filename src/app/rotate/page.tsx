@@ -12,6 +12,9 @@ export default function Rotate() {
   const [rotation, setRotation] = useState(0);
   const [loading, setLoading] = useState(false);
   const [rotatedUrl, setRotatedUrl] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -34,16 +37,50 @@ export default function Rotate() {
     multiple: false
   });
 
-  const handleRotate = (degrees: number) => {
-    setRotation((prev) => (prev + degrees) % 360);
+  const handleRotate = async (direction: 'left' | 'right') => {
+    if (!file) return;
+
+    setIsProcessing(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('operation', 'rotate');
+      formData.append('value', direction === 'left' ? '-90' : '90');
+
+      const response = await fetch('/api/editor', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('이미지 회전 중 오류가 발생했습니다.');
+      }
+
+      // 회전된 이미지를 Blob으로 받아서 처리
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      
+      // 이전 URL 정리
+      if (previewUrl && previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl);
+      }
+      
+      setPreviewUrl(url);
+      setUploadedFile(new File([blob], file.name, { type: 'image/jpeg' }));
+    } catch (error) {
+      console.error('Error:', error);
+      alert(error instanceof Error ? error.message : '이미지 회전 중 오류가 발생했습니다.');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleSave = async () => {
-    if (!file) return;
+    if (!uploadedFile) return;
 
     setLoading(true);
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', uploadedFile);
     formData.append('rotation', rotation.toString());
 
     try {
@@ -142,14 +179,14 @@ export default function Rotate() {
 
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                   <button
-                    onClick={() => handleRotate(-90)}
+                    onClick={() => handleRotate('left')}
                     className="mobile-button flex-1 bg-gray-100 text-gray-700 hover:bg-gray-200"
                   >
                     <ArrowPathIcon className="w-5 h-5 -rotate-90" />
                     <span className="ml-2">왼쪽으로 90° 회전</span>
                   </button>
                   <button
-                    onClick={() => handleRotate(90)}
+                    onClick={() => handleRotate('right')}
                     className="mobile-button flex-1 bg-gray-100 text-gray-700 hover:bg-gray-200"
                   >
                     <ArrowPathIcon className="w-5 h-5 rotate-90" />
