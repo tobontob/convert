@@ -13,7 +13,7 @@ export default function Terms() {
           <section className="mb-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">제 1 조 (목적)</h2>
             <p className="text-gray-600 mb-4">
-              이 약관은 Image Tools(이하 "회사")가 제공하는 이미지 편집 서비스(이하 "서비스")의 이용조건 및 절차, 
+              이 약관은 Image Tools(이하 &quot;회사&quot;)가 제공하는 이미지 편집 서비스(이하 &quot;서비스&quot;)의 이용조건 및 절차, 
               회사와 회원 간의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다.
             </p>
           </section>
@@ -21,9 +21,9 @@ export default function Terms() {
           <section className="mb-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">제 2 조 (용어의 정의)</h2>
             <p className="text-gray-600 mb-4">
-              1. "서비스"란 회사가 제공하는 모든 이미지 편집 관련 서비스를 의미합니다.<br />
-              2. "회원"이란 서비스를 이용하는 모든 사용자를 의미합니다.<br />
-              3. "콘텐츠"란 서비스에서 편집되는 모든 이미지 파일을 의미합니다.
+              1. &quot;서비스&quot;란 회사가 제공하는 모든 이미지 편집 관련 서비스를 의미합니다.<br />
+              2. &quot;회원&quot;이란 서비스를 이용하는 모든 사용자를 의미합니다.<br />
+              3. &quot;콘텐츠&quot;란 서비스에서 편집되는 모든 이미지 파일을 의미합니다.
             </p>
           </section>
 
