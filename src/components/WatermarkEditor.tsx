@@ -296,7 +296,7 @@ export default function WatermarkEditor({ baseImage, onSave }: WatermarkEditorPr
                 position
               });
             }}
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
               setSelectedWatermark(watermark.id);
               if (watermark.type !== 'text' || editingText !== watermark.id) {

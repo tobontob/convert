@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import ImageUploader from '@/components/ImageUploader';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
@@ -32,7 +32,7 @@ export default function ResizePage() {
   const [lastChangedDimension, setLastChangedDimension] = useState<'width' | 'height' | null>(null);
   const previewContainerRef = useRef<HTMLDivElement>(null);
 
-  const calculateNewDimensions = (originalWidth: number, originalHeight: number, targetWidth: string, targetHeight: string) => {
+  const calculateNewDimensions = useCallback((originalWidth: number, originalHeight: number, targetWidth: string, targetHeight: string) => {
     let newWidth = Number(targetWidth) || originalWidth;
     let newHeight = Number(targetHeight) || originalHeight;
 
@@ -83,7 +83,7 @@ export default function ResizePage() {
     }
 
     return { width: newWidth, height: newHeight };
-  };
+  }, [resizeMode, maintainAspectRatio, preventEnlargement, originalDimensions, lastChangedDimension, setWidth, setHeight]);
 
   // 크기 입력값이 변경될 때마다 미리보기 업데이트
   useEffect(() => {
