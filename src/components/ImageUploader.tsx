@@ -34,7 +34,7 @@ export default function ImageUploader({
     <div
       {...getRootProps()}
       className={`
-        relative overflow-hidden rounded-2xl transition-all duration-300 ease-in-out cursor-pointer
+        relative overflow-hidden rounded-xl transition-all duration-300 ease-in-out cursor-pointer
         ${isDragActive 
           ? 'bg-blue-50 border-2 border-dashed border-blue-500 scale-102'
           : 'bg-white border-2 border-dashed border-gray-200 hover:border-blue-400 hover:bg-gray-50'
@@ -42,26 +42,26 @@ export default function ImageUploader({
       `}
     >
       <input {...getInputProps()} />
-      <div className="p-8 sm:p-12">
+      <div className="p-3 sm:p-6">
         <div className={`
-          flex flex-col items-center justify-center space-y-4 transition-transform duration-300
-          ${isDragActive ? 'transform scale-110' : ''}
+          flex flex-col items-center justify-center space-y-3 sm:space-y-4 transition-transform duration-300
+          ${isDragActive ? 'transform scale-105' : ''}
         `}>
           <div className={`
-            p-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-500
+            p-3 sm:p-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-500
             ${isDragActive ? 'animate-bounce' : ''}
           `}>
-            <ArrowUpTrayIcon className="w-8 h-8 text-white" />
+            <ArrowUpTrayIcon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
           </div>
           <div className="text-center">
-            <p className="text-xl font-medium text-gray-700 mb-2">
+            <p className="text-sm sm:text-lg font-medium text-gray-700 mb-1 sm:mb-2">
               {isDragActive ? (
                 '여기에 이미지를 놓으세요'
               ) : (
                 '이미지를 드래그하여 놓거나 클릭하여 선택하세요'
               )}
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-xs sm:text-sm text-gray-500">
               지원 형식: JPG, PNG, GIF, WEBP (최대 10MB)
             </p>
           </div>

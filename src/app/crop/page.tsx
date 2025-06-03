@@ -32,6 +32,7 @@ export default function CropPage() {
   const [naturalSize, setNaturalSize] = useState<{ width: number; height: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLargeImage, setIsLargeImage] = useState(false);
+  const [aspect, setAspect] = useState<number | undefined>(undefined);
 
   const handleImageUpload = async (file: File) => {
     setUploadedFile(file);
@@ -142,106 +143,130 @@ export default function CropPage() {
     }
   };
 
+  const handleReset = () => {
+    setOriginalImage(null);
+    setUploadedFile(null);
+    setResult(null);
+    setCrop({
+      unit: 'px',
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+    });
+    setCompletedCrop(null);
+  };
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <Navigation />
-      <div className="max-w-6xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-12">
+      <div className="max-w-6xl mx-auto mobile-container">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          <div className="px-4 py-6 sm:p-10 bg-gradient-to-r from-green-500 to-teal-500">
-            <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2">
+          <div className="mobile-header from-green-500 to-teal-500">
+            <h1 className="mobile-header-title">
               이미지 자르기
             </h1>
-            <p className="text-green-50 text-base sm:text-lg">
+            <p className="mobile-header-description text-green-50">
               이미지의 원하는 부분만 선택하여 자르세요.
             </p>
           </div>
 
-          <div className="p-4 sm:p-10 space-y-6 sm:space-y-8">
+          <div className="p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
             {!originalImage ? (
               <ImageUploader onImageUpload={handleImageUpload} />
             ) : (
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-                  <h3 className="text-lg font-medium text-gray-900">자르기 영역 선택</h3>
+              <div className="space-y-4 sm:space-y-6">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                  <h3 className="text-sm sm:text-lg font-medium text-gray-900">자르기 영역 선택</h3>
                   <button
-                    onClick={() => {
-                      setOriginalImage(null);
-                      setUploadedFile(null);
-                      setResult(null);
-                      setCrop({
-                        unit: 'px',
-                        x: 0,
-                        y: 0,
-                        width: 0,
-                        height: 0,
-                      });
-                      setCompletedCrop(null);
-                    }}
-                    className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 border border-green-500 text-green-500 rounded-lg hover:bg-green-50 transition-colors"
+                    onClick={handleReset}
+                    className="mobile-button w-full sm:w-auto inline-flex items-center justify-center border border-green-500 text-green-500 hover:bg-green-50"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="mobile-icon mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                     </svg>
                     다른 이미지 편집하기
                   </button>
                 </div>
 
-                <div className="bg-gray-50 rounded-xl p-4 sm:p-6">
-                  <div 
-                    ref={containerRef}
-                    className="relative max-w-full overflow-auto rounded-lg"
-                    style={{ maxHeight: '70vh' }}
-                  >
+                <div className="bg-gray-50 rounded-xl p-3 sm:p-6">
+                  <div className="relative max-w-full overflow-hidden rounded-lg bg-gray-100">
                     <ReactCrop
                       crop={crop}
-                      onChange={(c) => setCrop(c)}
+                      onChange={(_, percentCrop) => setCrop(percentCrop)}
                       onComplete={(c) => setCompletedCrop(c)}
-                      aspect={undefined}
-                      className="max-w-full"
+                      aspect={aspect}
+                      className="max-h-[70vh]"
                     >
                       <img
                         ref={imgRef}
+                        alt="자를 이미지"
                         src={originalImage}
-                        alt="크롭할 이미지"
                         className="max-w-full h-auto"
-                        style={{
-                          maxHeight: '70vh'
-                        }}
                       />
                     </ReactCrop>
                   </div>
+                </div>
 
-                  {completedCrop && naturalSize && imgRef.current && (
-                    <div className="mt-4">
-                      <p className="text-base text-gray-600">
-                        선택된 영역: {Math.round(completedCrop.width * (naturalSize.width / imgRef.current.width))} x {Math.round(completedCrop.height * (naturalSize.height / imgRef.current.height))} 픽셀
-                      </p>
-                    </div>
-                  )}
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                  <button
+                    onClick={() => setAspect(undefined)}
+                    className={`mobile-button flex-1 ${
+                      !aspect ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    자유 비율
+                  </button>
+                  <button
+                    onClick={() => setAspect(1)}
+                    className={`mobile-button flex-1 ${
+                      aspect === 1 ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    1:1
+                  </button>
+                  <button
+                    onClick={() => setAspect(16/9)}
+                    className={`mobile-button flex-1 ${
+                      aspect === 16/9 ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    16:9
+                  </button>
+                  <button
+                    onClick={() => setAspect(4/3)}
+                    className={`mobile-button flex-1 ${
+                      aspect === 4/3 ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    4:3
+                  </button>
+                </div>
 
+                <div className="flex justify-center">
                   <button
                     onClick={handleCrop}
-                    disabled={isProcessing || !completedCrop}
-                    className="mt-6 w-full bg-gradient-to-r from-green-500 to-teal-500 text-white py-3 rounded-xl font-medium hover:from-green-600 hover:to-teal-600 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 text-base"
+                    disabled={isProcessing || !completedCrop?.width || !completedCrop?.height}
+                    className="mobile-button bg-green-500 text-white hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isProcessing ? '처리중...' : '이미지 자르기'}
+                    {isProcessing ? '처리 중...' : '자르기'}
                   </button>
                 </div>
 
                 {isProcessing && (
-                  <div className="text-center py-8 sm:py-12">
-                    <div className="relative w-16 sm:w-20 h-16 sm:h-20 mx-auto mb-4">
-                      <div className="absolute inset-0 rounded-full border-4 border-green-200 opacity-25"></div>
-                      <div className="absolute inset-0 rounded-full border-4 border-t-green-500 animate-spin"></div>
+                  <div className="text-center py-6 sm:py-8">
+                    <div className="relative w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3">
+                      <div className="absolute inset-0 rounded-full border-3 border-green-200 opacity-25"></div>
+                      <div className="absolute inset-0 rounded-full border-3 border-t-green-500 animate-spin"></div>
                     </div>
-                    <p className="text-gray-600 text-base sm:text-lg">이미지 자르는 중...</p>
+                    <p className="text-sm sm:text-base text-gray-600">이미지 자르는 중...</p>
                   </div>
                 )}
 
                 {result && (
-                  <div className="space-y-6">
-                    <div className="bg-gray-50 rounded-xl p-4 sm:p-6">
-                      <h3 className="text-lg font-medium text-gray-900 mb-4">결과</h3>
+                  <div className="space-y-4">
+                    <div className="bg-gray-50 rounded-xl p-3 sm:p-6">
+                      <h3 className="text-sm sm:text-lg font-medium text-gray-900 mb-3">결과</h3>
                       <div className="relative rounded-lg overflow-hidden bg-gray-100">
                         <div className="overflow-auto">
                           <div 
@@ -261,19 +286,21 @@ export default function CropPage() {
                             />
                           </div>
                         </div>
-                        <div className="absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
+                        <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded-full text-xs sm:text-sm">
                           {result.width} x {result.height} px
                         </div>
                       </div>
                     </div>
 
-                    <a
-                      href={result.url}
-                      download="cropped-image.jpg"
-                      className="block w-full bg-gradient-to-r from-green-500 to-teal-500 text-white text-center py-3 sm:py-4 rounded-xl font-medium hover:from-green-600 hover:to-teal-600 transition-all shadow-lg hover:shadow-xl text-base"
-                    >
-                      잘린 이미지 다운로드
-                    </a>
+                    <div className="flex justify-center">
+                      <a
+                        href={result.url}
+                        download="cropped-image"
+                        className="mobile-button bg-green-500 text-white hover:bg-green-600"
+                      >
+                        자른 이미지 다운로드
+                      </a>
+                    </div>
                   </div>
                 )}
               </div>

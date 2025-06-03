@@ -18,6 +18,30 @@
 }
 
 @layer components {
+  .mobile-container {
+    @apply px-3 py-3 sm:px-6 sm:py-6 lg:px-8 lg:py-8;
+  }
+
+  .mobile-header {
+    @apply px-4 py-4 sm:p-8 bg-gradient-to-r;
+  }
+
+  .mobile-header-title {
+    @apply text-xl sm:text-3xl lg:text-4xl font-bold text-white mb-1 sm:mb-2;
+  }
+
+  .mobile-header-description {
+    @apply text-sm sm:text-base lg:text-lg text-opacity-90;
+  }
+
+  .mobile-button {
+    @apply px-3 py-2 sm:px-4 sm:py-2.5 text-sm sm:text-base font-medium rounded-lg transition-all duration-200;
+  }
+
+  .mobile-icon {
+    @apply w-4 h-4 sm:w-5 sm:h-5;
+  }
+
   .gradient-border {
     position: relative;
     border-radius: 0.75rem;
