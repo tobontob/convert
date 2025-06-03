@@ -1,3 +1,7 @@
+import { convertMetadata } from '../metadata';
+
+export const metadata = convertMetadata;
+
 'use client';
 
 import { useState, useCallback } from 'react';

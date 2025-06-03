@@ -1,3 +1,7 @@
+import { editorMetadata } from '../metadata';
+
+export const metadata = editorMetadata;
+
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';

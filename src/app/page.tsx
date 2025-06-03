@@ -1,3 +1,7 @@
+import { homeMetadata } from './metadata';
+
+export const metadata = homeMetadata;
+
 'use client';
 
 import { useState } from 'react';

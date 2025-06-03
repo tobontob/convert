@@ -1,3 +1,7 @@
+import { compressMetadata } from '../metadata';
+
+export const metadata = compressMetadata;
+
 'use client';
 
 import { useState } from 'react';

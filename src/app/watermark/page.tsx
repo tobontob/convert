@@ -1,3 +1,7 @@
+import { watermarkMetadata } from '../metadata';
+
+export const metadata = watermarkMetadata;
+
 'use client';
 
 import { useState } from 'react';
