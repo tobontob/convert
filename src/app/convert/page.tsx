@@ -100,7 +100,7 @@ export default function Convert() {
             </p>
           </div>
 
-          <div className="p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
+          <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
             <div
               {...getRootProps()}
               className={`relative border-2 border-dashed rounded-xl p-4 sm:p-6 text-center cursor-pointer transition-colors ${

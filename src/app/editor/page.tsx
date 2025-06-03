@@ -753,7 +753,7 @@ export default function Editor() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <Navigation />
-      <div className="max-w-6xl mx-auto px-2 sm:px-6 lg:px-8 py-2 sm:py-6">
+      <div className="max-w-6xl mx-auto mobile-container">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="px-3 py-4 sm:p-10 bg-gradient-to-r from-indigo-500 to-purple-500">
             <h1 className="text-xl sm:text-4xl font-bold text-white mb-1 sm:mb-2">
@@ -1065,7 +1065,7 @@ export default function Editor() {
 
                 {/* 다운로드 버튼 영역 */}
                 {editedUrl && (
-                  <div className="mt-4 sm:mt-6 px-2 sm:px-0">
+                  <div className="mt-2 sm:mt-4 px-2 sm:px-0">
                     <button
                       onClick={handleDownload}
                       className="w-full flex items-center justify-center gap-2 px-4 py-3 sm:py-4 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white rounded-xl text-sm sm:text-base font-medium transition-colors shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
