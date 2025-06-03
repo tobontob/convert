@@ -1,7 +1,3 @@
-import { rotateMetadata } from '../metadata';
-
-export const metadata = rotateMetadata;
-
 'use client';
 
 import { useState, useCallback } from 'react';

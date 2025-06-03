@@ -1,7 +1,3 @@
-import { resizeMetadata } from '../metadata';
-
-export const metadata = resizeMetadata;
-
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
