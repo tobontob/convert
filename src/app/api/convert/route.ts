@@ -35,9 +35,6 @@ export async function POST(request: NextRequest) {
       case 'gif':
         convertedBuffer = await image.gif().toBuffer();
         break;
-      case 'bmp':
-        convertedBuffer = await image.bmp().toBuffer();
-        break;
       case 'tiff':
         convertedBuffer = await image.tiff({ compression: 'lzw' }).toBuffer();
         break;

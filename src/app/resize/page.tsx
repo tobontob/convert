@@ -96,7 +96,7 @@ export default function ResizePage() {
       );
       setPreviewDimensions(newDimensions);
     }
-  }, [width, height, resizeMode, maintainAspectRatio, preventEnlargement]);
+  }, [width, height, resizeMode, maintainAspectRatio, preventEnlargement, calculateNewDimensions, originalDimensions]);
 
   const handleImageUpload = async (file: File) => {
     setUploadedFile(file);
