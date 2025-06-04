@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
-import { defaultMetadata, defaultOpenGraph, defaultTwitter } from './config';
+import { baseMetadata } from './config';
 
 export const metadata: Metadata = {
-  ...defaultMetadata,
+  ...baseMetadata,
   title: '이미지 편집기 | 무료 온라인 포토 에디터 | Image Tools',
   description: '다양한 이미지 편집 도구를 한 곳에서 사용하세요. 필터, 조정, 변형 등 전문적인 편집 기능을 무료로 제공하는 온라인 이미지 편집기입니다.',
   keywords: [
@@ -21,13 +21,13 @@ export const metadata: Metadata = {
     '전문 이미지 편집',
   ],
   openGraph: {
-    ...defaultOpenGraph,
+    ...baseMetadata.openGraph,
     title: '이미지 편집기 | 무료 온라인 포토 에디터 | Image Tools',
     description: '다양한 이미지 편집 도구를 한 곳에서 사용하세요. 필터, 조정, 변형 등 전문적인 편집 기능을 무료로 제공하는 온라인 이미지 편집기입니다.',
   },
   twitter: {
-    ...defaultTwitter,
+    ...baseMetadata.twitter,
     title: '이미지 편집기 | 무료 온라인 포토 에디터 | Image Tools',
     description: '다양한 이미지 편집 도구를 한 곳에서 사용하세요. 필터, 조정, 변형 등 전문적인 편집 기능을 무료로 제공하는 온라인 이미지 편집기입니다.',
-  },
+  }
 }; 

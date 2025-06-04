@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
-import { defaultMetadata, defaultOpenGraph, defaultTwitter } from './config';
+import { baseMetadata } from './config';
 
 export const metadata: Metadata = {
-  ...defaultMetadata,
+  ...baseMetadata,
   title: '이미지 자르기 | 무료 이미지 크롭 도구 | Image Tools',
   description: '이미지를 원하는 크기와 비율로 자유롭게 자르세요. 정사각형, 16:9, 4:3 등 다양한 비율 프리셋과 자유 선택 영역 지정을 지원합니다.',
   keywords: [
@@ -21,13 +21,13 @@ export const metadata: Metadata = {
     '정밀 크롭',
   ],
   openGraph: {
-    ...defaultOpenGraph,
+    ...baseMetadata.openGraph,
     title: '이미지 자르기 | 무료 이미지 크롭 도구 | Image Tools',
     description: '이미지를 원하는 크기와 비율로 자유롭게 자르세요. 정사각형, 16:9, 4:3 등 다양한 비율 프리셋과 자유 선택 영역 지정을 지원합니다.',
   },
   twitter: {
-    ...defaultTwitter,
+    ...baseMetadata.twitter,
     title: '이미지 자르기 | 무료 이미지 크롭 도구 | Image Tools',
     description: '이미지를 원하는 크기와 비율로 자유롭게 자르세요. 정사각형, 16:9, 4:3 등 다양한 비율 프리셋과 자유 선택 영역 지정을 지원합니다.',
-  },
+  }
 }; 

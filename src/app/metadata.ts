@@ -92,7 +92,7 @@ export const metadata: Metadata = {
 
 // 이미지 변환 페이지 메타데이터
 export const convertMetadata: Metadata = {
-  ...defaultMetadata,
+  ...baseMetadata,
   title: '이미지 형식 변환 | JPG, PNG, WebP, GIF 변환 | Image Tools',
   description: 'JPG, PNG, WebP, GIF 등 다양한 이미지 형식으로 무료로 변환하세요. 고품질 이미지 변환, 빠른 처리 속도, 안전한 파일 처리를 제공합니다. 웹에서 바로 이미지 형식을 변환할 수 있는 온라인 도구입니다.',
   keywords: [
@@ -113,7 +113,7 @@ export const convertMetadata: Metadata = {
     '웹 이미지 변환'
   ],
   openGraph: {
-    ...defaultMetadata.openGraph,
+    ...baseMetadata.openGraph,
     title: '이미지 형식 변환 | JPG, PNG, WebP, GIF 변환',
     description: 'JPG, PNG, WebP, GIF 등 다양한 이미지 형식으로 무료로 변환하세요. 고품질 이미지 변환, 빠른 처리 속도를 제공합니다.',
   }
@@ -121,7 +121,7 @@ export const convertMetadata: Metadata = {
 
 // 이미지 압축 페이지 메타데이터
 export const compressMetadata: Metadata = {
-  ...defaultMetadata,
+  ...baseMetadata,
   title: '이미지 압축 | 이미지 용량 줄이기 | 스마트 이미지 최적화 | Image Tools',
   description: '이미지 품질은 유지하면서 파일 크기를 최적화하세요. AI 기반 스마트 압축 알고리즘으로 웹사이트 성능 향상, 저장 공간 절약을 도와드립니다. 무료로 제공되는 전문가급 이미지 압축 서비스입니다.',
   keywords: [
@@ -142,7 +142,7 @@ export const compressMetadata: Metadata = {
     '웹사이트 최적화'
   ],
   openGraph: {
-    ...defaultMetadata.openGraph,
+    ...baseMetadata.openGraph,
     title: '이미지 압축 | 스마트 이미지 최적화',
     description: '이미지 품질은 유지하면서 파일 크기를 최적화하세요. AI 기반 스마트 압축 알고리즘으로 웹사이트 성능 향상을 도와드립니다.',
   }
@@ -150,7 +150,7 @@ export const compressMetadata: Metadata = {
 
 // 이미지 크기 조정 페이지 메타데이터
 export const resizeMetadata: Metadata = {
-  ...defaultMetadata,
+  ...baseMetadata,
   title: '이미지 크기 조정 | 이미지 리사이징 | 비율 유지 크기 조정 | Image Tools',
   description: '이미지 크기를 자유롭게 조정하세요. 비율 유지, 픽셀 단위 조정, 배치 처리 등 다양한 옵션을 제공합니다. SNS 이미지, 프로필 사진, 썸네일 등 용도에 맞는 크기로 쉽게 변경할 수 있습니다.',
   keywords: [
@@ -171,7 +171,7 @@ export const resizeMetadata: Metadata = {
     '대량 이미지 크기 조정'
   ],
   openGraph: {
-    ...defaultMetadata.openGraph,
+    ...baseMetadata.openGraph,
     title: '이미지 크기 조정 | 비율 유지 크기 조정',
     description: '이미지 크기를 자유롭게 조정하세요. 비율 유지, 픽셀 단위 조정, SNS 이미지 최적화 등 다양한 옵션을 제공합니다.',
   }
@@ -179,7 +179,7 @@ export const resizeMetadata: Metadata = {
 
 // 이미지 자르기 페이지 메타데이터
 export const cropMetadata: Metadata = {
-  ...defaultMetadata,
+  ...baseMetadata,
   title: '이미지 자르기 | 스마트 크롭 | 이미지 트리밍 | Image Tools',
   description: '이미지를 원하는 크기와 비율로 정밀하게 자르세요. 얼굴 인식 스마트 크롭, 자유 영역 선택, SNS 최적화 비율 등 전문적인 이미지 자르기 기능을 제공합니다. 직관적인 인터페이스로 쉽게 이미지를 편집할 수 있습니다.',
   keywords: [
@@ -200,9 +200,9 @@ export const cropMetadata: Metadata = {
     '이미지 잘라내기'
   ],
   openGraph: {
-    ...defaultMetadata.openGraph,
+    ...baseMetadata.openGraph,
     title: '이미지 자르기 | 스마트 크롭',
-    description: '이미지를 원하는 크기와 비율로 정밀하게 자르세요. 얼굴 인식 스마트 크롭, 자유 영역 선택 등 전문적인 기능을 제공합니다.',
+    description: '이미지를 원하는 크기와 비율로 정밀하게 자르세요. 얼굴 인식 스마트 크롭, 자유 영역 선택, SNS 최적화 비율 등을 제공합니다.',
   }
 };
 

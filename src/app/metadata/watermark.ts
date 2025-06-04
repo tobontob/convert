@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
-import { defaultMetadata, defaultOpenGraph, defaultTwitter } from './config';
+import { baseMetadata } from './config';
 
 export const metadata: Metadata = {
-  ...defaultMetadata,
+  ...baseMetadata,
   title: '이미지 워터마크 | 무료 워터마크 추가 도구 | Image Tools',
   description: '이미지에 텍스트 또는 이미지 워터마크를 추가하세요. 크기, 위치, 투명도 등을 자유롭게 조정할 수 있는 무료 워터마크 도구입니다.',
   keywords: [
@@ -21,13 +21,13 @@ export const metadata: Metadata = {
     '워터마크 크기 조정',
   ],
   openGraph: {
-    ...defaultOpenGraph,
+    ...baseMetadata.openGraph,
     title: '이미지 워터마크 | 무료 워터마크 추가 도구 | Image Tools',
     description: '이미지에 텍스트 또는 이미지 워터마크를 추가하세요. 크기, 위치, 투명도 등을 자유롭게 조정할 수 있는 무료 워터마크 도구입니다.',
   },
   twitter: {
-    ...defaultTwitter,
+    ...baseMetadata.twitter,
     title: '이미지 워터마크 | 무료 워터마크 추가 도구 | Image Tools',
     description: '이미지에 텍스트 또는 이미지 워터마크를 추가하세요. 크기, 위치, 투명도 등을 자유롭게 조정할 수 있는 무료 워터마크 도구입니다.',
-  },
+  }
 }; 

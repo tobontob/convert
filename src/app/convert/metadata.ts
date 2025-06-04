@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
-import { defaultMetadata } from '../metadata/config';
+import { baseMetadata } from '../metadata/config';
 
 export const metadata: Metadata = {
-  ...defaultMetadata,
+  ...baseMetadata,
   title: '이미지 형식 변환 | JPG, PNG, WebP, GIF 변환 | Image Tools',
   description: 'JPG, PNG, WebP, GIF 등 다양한 이미지 형식으로 무료로 변환하세요. 고품질 이미지 변환, 빠른 처리 속도, 안전한 파일 처리를 제공합니다. 웹에서 바로 이미지 형식을 변환할 수 있는 온라인 도구입니다.',
   keywords: [
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     '웹 이미지 변환'
   ],
   openGraph: {
-    ...defaultMetadata.openGraph,
+    ...baseMetadata.openGraph,
     title: '이미지 형식 변환 | JPG, PNG, WebP, GIF 변환',
     description: 'JPG, PNG, WebP, GIF 등 다양한 이미지 형식으로 무료로 변환하세요. 고품질 이미지 변환, 빠른 처리 속도를 제공합니다.',
   }
