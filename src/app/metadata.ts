@@ -52,12 +52,11 @@ export const defaultMetadata: Metadata = {
   },
   verification: {
     google: 'google-site-verification-code',
-    naver: 'naver-site-verification-code',
   },
 };
 
 // 랜딩 페이지 메타데이터
-export const homeMetadata: Metadata = {
+export const metadata: Metadata = {
   ...defaultMetadata,
   title: '무료 온라인 이미지 편집 도구 | Image Tools',
   description: '무료로 사용할 수 있는 온라인 이미지 편집 도구입니다. 이미지 변환, 압축, 크기 조정, 자르기, 워터마크 등 다양한 기능을 제공합니다.',
@@ -118,6 +117,4 @@ export const watermarkMetadata: Metadata = {
   title: '이미지 워터마크 | Image Tools',
   description: '이미지에 텍스트 또는 이미지 워터마크를 추가하세요. 크기, 위치, 투명도 등을 자유롭게 조정할 수 있습니다.',
   keywords: ['이미지 워터마크', '워터마크 추가', '저작권 보호', '로고 삽입', '무료 워터마크'],
-};
-
-export { metadata } from './metadata/home'; 
+}; 

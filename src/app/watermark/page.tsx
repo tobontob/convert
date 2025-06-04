@@ -134,6 +134,4 @@ export default function WatermarkPage() {
       </div>
     </main>
   );
-}
-
-export { metadata } from '../metadata/watermark'; 
+} 
