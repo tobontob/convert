@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { defaultMetadata } from './metadata/config';
+import { baseMetadata } from './metadata/config';
 
 // 기본 메타데이터 설정
 export const defaultMetadata: Metadata = {
@@ -58,7 +58,7 @@ export const defaultMetadata: Metadata = {
 
 // 랜딩 페이지 메타데이터
 export const metadata: Metadata = {
-  ...defaultMetadata,
+  ...baseMetadata,
   title: '무료 온라인 이미지 편집 도구 | 이미지 변환, 압축, 편집 | Image Tools',
   description: '무료로 사용할 수 있는 전문가급 온라인 이미지 편집 도구입니다. 이미지 변환, 압축, 크기 조정, 자르기, 워터마크, 회전 등 다양한 기능을 제공합니다. 웹 브라우저에서 바로 사용 가능한 온라인 이미지 편집 서비스입니다.',
   keywords: [
@@ -79,12 +79,12 @@ export const metadata: Metadata = {
     '무료 이미지 도구'
   ],
   openGraph: {
-    ...defaultMetadata.openGraph,
+    ...baseMetadata.openGraph,
     title: '무료 온라인 이미지 편집 도구 | Image Tools',
     description: '무료로 사용할 수 있는 전문가급 온라인 이미지 편집 도구입니다. 이미지 변환, 압축, 크기 조정, 자르기, 워터마크, 회전 등 다양한 기능을 제공합니다.',
   },
   twitter: {
-    ...defaultMetadata.twitter,
+    ...baseMetadata.twitter,
     title: '무료 온라인 이미지 편집 도구 | Image Tools',
     description: '무료로 사용할 수 있는 전문가급 온라인 이미지 편집 도구입니다. 이미지 변환, 압축, 크기 조정, 자르기, 워터마크, 회전 등 다양한 기능을 제공합니다.',
   }

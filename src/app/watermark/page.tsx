@@ -6,7 +6,7 @@ import WatermarkEditor from '@/components/WatermarkEditor';
 import Navigation from '@/components/Navigation';
 import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 
-export default function WatermarkPage() {
+export default function Watermark() {
   const [baseImage, setBaseImage] = useState<string | null>(null);
   const [watermarkedImage, setWatermarkedImage] = useState<string | null>(null);
 

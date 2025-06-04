@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
-import { defaultMetadata } from '../metadata/config';
+import { baseMetadata } from '../metadata/config';
 
 export const metadata: Metadata = {
-  ...defaultMetadata,
+  ...baseMetadata,
   title: '이미지 압축 | 이미지 용량 줄이기 | 스마트 이미지 최적화 | Image Tools',
   description: '이미지 품질은 유지하면서 파일 크기를 최적화하세요. AI 기반 스마트 압축 알고리즘으로 웹사이트 성능 향상, 저장 공간 절약을 도와드립니다. 무료로 제공되는 전문가급 이미지 압축 서비스입니다.',
   keywords: [
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     '웹사이트 최적화'
   ],
   openGraph: {
-    ...defaultMetadata.openGraph,
+    ...baseMetadata.openGraph,
     title: '이미지 압축 | 스마트 이미지 최적화',
     description: '이미지 품질은 유지하면서 파일 크기를 최적화하세요. AI 기반 스마트 압축 알고리즘으로 웹사이트 성능 향상을 도와드립니다.',
   }
