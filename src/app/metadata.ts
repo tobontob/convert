@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { defaultMetadata } from './metadata/config';
 
 // 기본 메타데이터 설정
 export const defaultMetadata: Metadata = {
