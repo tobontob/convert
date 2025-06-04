@@ -328,6 +328,4 @@ export default function ResizePage() {
       </div>
     </main>
   );
-}
-
-export { metadata } from '../metadata/resize'; 
+} 

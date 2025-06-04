@@ -118,4 +118,6 @@ export const watermarkMetadata: Metadata = {
   title: '이미지 워터마크 | Image Tools',
   description: '이미지에 텍스트 또는 이미지 워터마크를 추가하세요. 크기, 위치, 투명도 등을 자유롭게 조정할 수 있습니다.',
   keywords: ['이미지 워터마크', '워터마크 추가', '저작권 보호', '로고 삽입', '무료 워터마크'],
-}; 
+};
+
+export { metadata } from './metadata/home'; 
