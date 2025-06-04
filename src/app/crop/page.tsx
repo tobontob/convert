@@ -8,6 +8,8 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
 
+export { metadata } from '../metadata/crop';
+
 interface CropResult {
   url: string;
   width: number;

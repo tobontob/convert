@@ -132,4 +132,6 @@ export default function CompressPage() {
       </div>
     </main>
   );
-} 
+}
+
+export { metadata } from '../metadata/compress'; 

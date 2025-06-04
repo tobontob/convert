@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 import Navigation from '@/components/Navigation';
 
+export { metadata } from '../metadata/convert';
+
 export default function Convert() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>('');

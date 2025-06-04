@@ -122,3 +122,5 @@ export default function Home() {
     </main>
   );
 }
+
+export { metadata } from './metadata/home';

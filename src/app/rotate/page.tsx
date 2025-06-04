@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { ArrowUpTrayIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import Navigation from '@/components/Navigation';
 
+export { metadata } from '../metadata/rotate';
+
 export default function Rotate() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>('');
