@@ -11,12 +11,14 @@ export const metadata: Metadata = {
   description: "무료로 사용할 수 있는 온라인 이미지 편집 도구입니다",
   icons: {
     icon: [
-      { url: '/favicon.ico' },
+      { url: '/favicon.ico', sizes: 'any' },
       { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
       { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
     ],
     apple: '/apple-touch-icon.png',
     other: [
+      { rel: 'mask-icon', url: '/favicon.ico' },
+      { rel: 'shortcut icon', url: '/favicon.ico' },
       {
         rel: 'android-chrome-192x192',
         url: '/android-chrome-192x192.png',
