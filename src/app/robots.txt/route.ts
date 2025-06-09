@@ -6,6 +6,7 @@ User-agent: *
 Allow: /
 
 Sitemap: https://www.imagetools.co.kr/sitemap.xml
+RSS: https://www.imagetools.co.kr/rss.xml
 `
   return new NextResponse(robotsTxt, {
     headers: {
