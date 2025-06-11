@@ -3,4 +3,4 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://imagetools.vercel.app/sitemap.xml 
+Sitemap: https://www.imagetools.co.kr/sitemap.xml 
