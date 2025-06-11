@@ -7,22 +7,12 @@ import ImageUploader from '@/components/ImageUploader';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
-import type { Metadata } from 'next'
 
 interface CropResult {
   url: string;
   width: number;
   height: number;
   size: number;
-}
-
-export const metadata: Metadata = {
-  title: '무료 이미지 자르기 도구 | 이미지 크롭/트리밍 - Image Tools',
-  description: '이미지를 무료로 자르세요. 원하는 크기와 비율로 이미지를 정확하게 자르고 편집할 수 있습니다.',
-  openGraph: {
-    title: '무료 이미지 자르기 도구 | 이미지 크롭/트리밍 - Image Tools',
-    description: '이미지를 무료로 자르세요. 원하는 크기와 비율로 이미지를 정확하게 자르고 편집할 수 있습니다.',
-  }
 }
 
 export default function CropPage() {
