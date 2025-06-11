@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const baseMetadata: Metadata = {
-  metadataBase: new URL('https://imagetools.vercel.app'),
+  metadataBase: new URL('https://www.imagetools.co.kr'),
   title: {
     default: '온라인 이미지 편집 도구 모음 - 무료로 간편하게 편집하기 | Image Tools',
     template: '%s | Image Tools'
@@ -33,18 +33,18 @@ export const baseMetadata: Metadata = {
     telephone: false,
   },
   alternates: {
-    canonical: 'https://imagetools.vercel.app'
+    canonical: 'https://www.imagetools.co.kr'
   },
   openGraph: {
     type: 'website',
     locale: 'ko_KR',
-    url: 'https://imagetools.vercel.app',
+    url: 'https://www.imagetools.co.kr',
     siteName: 'Image Tools',
     title: '온라인 이미지 편집 도구 모음 - 무료로 간편하게 편집하기 | Image Tools',
     description: '웹에서 바로 사용하는 무료 이미지 편집 도구. 회전, 자르기, 크기 조정, 형식 변환, 워터마크 추가, 용량 줄이기 등 다양한 기능을 한 곳에서! 매월 50,000명 이상이 선택한 온라인 이미지 편집 서비스입니다.',
     images: [
       {
-        url: 'https://imagetools.vercel.app/og-image.png',
+        url: 'https://www.imagetools.co.kr/og-image.png',
         width: 1200,
         height: 630,
         alt: 'Image Tools - 무료 온라인 이미지 편집 도구 모음',
@@ -55,7 +55,7 @@ export const baseMetadata: Metadata = {
     card: 'summary_large_image',
     title: '온라인 이미지 편집 도구 모음 - 무료로 간편하게 편집하기 | Image Tools',
     description: '웹에서 바로 사용하는 무료 이미지 편집 도구. 회전, 자르기, 크기 조정, 형식 변환, 워터마크 추가, 용량 줄이기 등 다양한 기능을 한 곳에서!',
-    images: ['https://imagetools.vercel.app/og-image.png'],
+    images: ['https://www.imagetools.co.kr/og-image.png'],
   },
   robots: {
     index: true,
