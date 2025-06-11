@@ -1,30 +1,12 @@
-import { Metadata } from 'next';
-import { baseMetadata } from '../metadata/config';
+import type { Metadata } from 'next'
 
-export const metadata: Metadata = {
-  ...baseMetadata,
-  title: '이미지 회전 | 이미지 반전 | 각도 조정 | Image Tools',
-  description: '이미지를 원하는 각도로 자유롭게 회전하세요. 90도, 180도 회전, 좌우/상하 반전, 미세 각도 조정 등 다양한 회전 옵션을 제공합니다. EXIF 정보를 활용한 자동 회전 보정 기능도 지원합니다.',
-  keywords: [
-    '이미지 회전',
-    '이미지 반전',
-    '이미지 뒤집기',
-    '각도 조정',
-    '90도 회전',
-    '180도 회전',
-    '좌우 반전',
-    '상하 반전',
-    '이미지 기울기 조정',
-    'EXIF 회전',
-    '자동 회전 보정',
-    '미세 각도 조정',
-    '이미지 방향 변경',
-    '배치 회전',
-    '무료 이미지 회전'
-  ],
+const metadata: Metadata = {
+  title: '무료 이미지 회전 도구 | 이미지 회전/반전 편집기 - Image Tools',
+  description: '이미지를 무료로 회전하고 반전하세요. 원하는 각도로 이미지를 자유롭게 회전하고 좌우/상하 반전할 수 있습니다.',
   openGraph: {
-    ...baseMetadata.openGraph,
-    title: '이미지 회전 | 각도 조정',
-    description: '이미지를 원하는 각도로 자유롭게 회전하세요. 90도, 180도 회전, 좌우/상하 반전, 미세 각도 조정 등을 지원합니다.',
+    title: '무료 이미지 회전 도구 | 이미지 회전/반전 편집기 - Image Tools',
+    description: '이미지를 무료로 회전하고 반전하세요. 원하는 각도로 이미지를 자유롭게 회전하고 좌우/상하 반전할 수 있습니다.',
   }
-}; 
+}
+
+export default metadata 
