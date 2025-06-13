@@ -171,7 +171,7 @@ export default function CropPage() {
 
           <div className="p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
             {!originalImage ? (
-              <ImageUploader onImageUpload={handleImageUpload} />
+              <ImageUploader onImageUpload={handleImageUpload} maxFileSize={10 * 1024 * 1024} />
             ) : (
               <div className="space-y-4 sm:space-y-6">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
@@ -301,6 +301,10 @@ export default function CropPage() {
                     </div>
                   </div>
                 )}
+
+                <p className="text-xs sm:text-sm text-gray-500">
+                  지원 형식: JPG, PNG, GIF, WEBP (최대 10MB)
+                </p>
               </div>
             )}
           </div>

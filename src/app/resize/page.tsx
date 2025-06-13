@@ -201,7 +201,7 @@ export default function ResizePage() {
 
           <div className="p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
             {!originalImage ? (
-              <ImageUploader onImageUpload={handleImageUpload} />
+              <ImageUploader onImageUpload={handleImageUpload} maxFileSize={10 * 1024 * 1024} />
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 <div className="space-y-4">

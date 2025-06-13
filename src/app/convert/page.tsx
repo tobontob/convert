@@ -39,6 +39,7 @@ export default function Convert() {
     accept: {
       'image/*': []
     },
+    maxSize: 10 * 1024 * 1024,
     multiple: false
   });
 
@@ -119,7 +120,7 @@ export default function Convert() {
                     이미지를 드래그하여 놓거나 클릭하여 선택하세요
                   </p>
                   <p className="text-xs sm:text-sm text-gray-500">
-                    지원되는 형식: JPEG, PNG, WebP, GIF, TIFF
+                    지원 형식: JPG, PNG, GIF, WEBP (최대 10MB)
                   </p>
                 </div>
               </div>

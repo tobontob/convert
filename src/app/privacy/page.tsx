@@ -55,6 +55,9 @@ export default function Privacy() {
               회사는 개인정보 보유기간의 경과, 처리목적 달성 등 개인정보가 불필요하게 되었을 때에는 
               지체없이 해당 개인정보를 파기합니다.
             </p>
+            <p className="text-pink-600 font-semibold">
+              ※ 업로드된 이미지 및 편집한 내용은 서버에 저장되지 않으며, 어떤 기록도 남지 않습니다.
+            </p>
           </section>
 
           <section>
