@@ -342,59 +342,70 @@ export default function Editor() {
     }
   }, [cropMode, initializeCropArea]);
 
+  // 이미지가 렌더링된 실제 영역 계산 함수 추가
+  function getRenderedImageRect(img: HTMLImageElement) {
+    const containerRect = img.parentElement!.getBoundingClientRect();
+    const naturalRatio = img.naturalWidth / img.naturalHeight;
+    const containerRatio = containerRect.width / containerRect.height;
+    let width, height, left, top;
+    if (naturalRatio > containerRatio) {
+      width = containerRect.width;
+      height = width / naturalRatio;
+      left = 0;
+      top = (containerRect.height - height) / 2;
+    } else {
+      height = containerRect.height;
+      width = height * naturalRatio;
+      top = 0;
+      left = (containerRect.width - width) / 2;
+    }
+    return { left, top, width, height };
+  }
+
   // 자르기 함수 수정
   const handleCrop = async () => {
     if (!cropMode || !editHistory || !imageRef.current) return;
-    
     try {
-      // 이미지의 실제 크기와 표시 크기 가져오기
       const img = imageRef.current;
       const displayRect = img.getBoundingClientRect();
-
-      // 이미지 로드 및 실제 크기 가져오기
       await new Promise<void>((resolve, reject) => {
         const actualImage = document.createElement('img');
         actualImage.onload = () => {
-          // 이미지의 회전 상태를 확인하기 위해 메타데이터를 가져옴
           fetch('/api/editor/metadata', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ imageUrl: preview }),
           })
           .then(response => response.json())
           .then(metadata => {
             const orientation = metadata.orientation || 1;
             const isRotated = orientation >= 5 && orientation <= 8;
-            
-            // 회전 상태에 따른 실제 크기 계산
             let actualWidth = actualImage.naturalWidth;
             let actualHeight = actualImage.naturalHeight;
-            
             if (isRotated) {
               [actualWidth, actualHeight] = [actualHeight, actualWidth];
             }
-
-            // 표시 크기와 실제 크기의 비율 계산
-            const scaleX = actualWidth / displayRect.width;
-            const scaleY = actualHeight / displayRect.height;
-
-            // 선택한 영역을 실제 이미지 크기 기준으로 변환
+            // 렌더링된 이미지 영역 계산
+            const renderedRect = getRenderedImageRect(img);
+            // cropData를 렌더링된 이미지 기준으로 보정
+            const cropX = cropData.x - renderedRect.left;
+            const cropY = cropData.y - renderedRect.top;
+            // 비율 계산
+            const scaleX = actualWidth / renderedRect.width;
+            const scaleY = actualHeight / renderedRect.height;
+            // 실제 이미지 좌표로 변환
             const options = {
-              left: Math.round(cropData.x * scaleX),
-              top: Math.round(cropData.y * scaleY),
+              left: Math.round(cropX * scaleX),
+              top: Math.round(cropY * scaleY),
               cropWidth: Math.round(cropData.width * scaleX),
               cropHeight: Math.round(cropData.height * scaleY),
               orientation: orientation
             };
-
             // 잘라낼 영역이 실제 이미지 범위를 벗어나지 않도록 보정
             options.left = Math.max(0, Math.min(options.left, actualWidth - 1));
             options.top = Math.max(0, Math.min(options.top, actualHeight - 1));
             options.cropWidth = Math.max(1, Math.min(options.cropWidth, actualWidth - options.left));
             options.cropHeight = Math.max(1, Math.min(options.cropHeight, actualHeight - options.top));
-
             resolve();
             processCrop(options);
           })
