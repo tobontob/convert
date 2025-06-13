@@ -58,22 +58,22 @@ export default function Watermark() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <main className="min-h-0 bg-gradient-to-br from-gray-50 to-gray-100">
       <Navigation />
-      <div className="max-w-6xl mx-auto mobile-container">
+      <div className="max-w-6xl mx-auto mobile-container pb-20">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          <div className="mobile-header from-blue-500 to-purple-500">
+          <div className="mobile-header from-yellow-500 to-yellow-600">
             <h1 className="mobile-header-title">
               워터마크 삽입
             </h1>
-            <p className="mobile-header-description text-blue-50">
+            <p className="mobile-header-description text-yellow-50">
               이미지에 워터마크를 추가하여 저작권을 보호하세요.
             </p>
           </div>
 
           <div className="p-3 sm:p-6 lg:p-8">
             {!baseImage ? (
-              <div className="relative border-2 border-dashed rounded-xl p-4 sm:p-6 text-center cursor-pointer transition-colors hover:border-blue-500 hover:bg-blue-50 border-gray-300">
+              <div className="relative border-2 border-dashed rounded-xl p-4 sm:p-6 text-center cursor-pointer transition-colors hover:border-yellow-500 hover:bg-yellow-50 border-gray-300">
                 <input
                   type="file"
                   accept="image/*"
@@ -86,8 +86,8 @@ export default function Watermark() {
                   className="block cursor-pointer"
                 >
                   <div className="space-y-3 sm:space-y-4">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto rounded-full bg-blue-100 flex items-center justify-center">
-                      <ArrowUpTrayIcon className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto rounded-full bg-yellow-100 flex items-center justify-center">
+                      <ArrowUpTrayIcon className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-600" />
                     </div>
                     <div className="space-y-1 sm:space-y-2">
                       <p className="text-sm sm:text-base lg:text-lg font-medium text-gray-700">

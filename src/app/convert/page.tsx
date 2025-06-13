@@ -88,9 +88,9 @@ export default function Convert() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <main className="min-h-0 bg-gradient-to-br from-gray-50 to-gray-100">
       <Navigation />
-      <div className="max-w-6xl mx-auto mobile-container">
+      <div className="max-w-6xl mx-auto mobile-container pb-20">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="mobile-header from-orange-500 to-yellow-500">
             <h1 className="mobile-header-title">

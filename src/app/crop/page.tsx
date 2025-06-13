@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import ImageUploader from '@/components/ImageUploader';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
+import { useDropzone } from 'react-dropzone';
 
 interface CropResult {
   url: string;
@@ -33,11 +34,14 @@ export default function CropPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLargeImage, setIsLargeImage] = useState(false);
   const [aspect, setAspect] = useState<number | undefined>(undefined);
+  const [originalDimensions, setOriginalDimensions] = useState<{ width: number; height: number } | null>(null);
+  const [previewDimensions, setPreviewDimensions] = useState<{ width: number; height: number } | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
 
-  const handleImageUpload = async (file: File) => {
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (!file) return;
     setUploadedFile(file);
-    setResult(null);
-    
     const reader = new FileReader();
     reader.onloadend = () => {
       setOriginalImage(reader.result as string);
@@ -45,27 +49,18 @@ export default function CropPage() {
       const img = new Image();
       img.onload = () => {
         setNaturalSize({ width: img.naturalWidth, height: img.naturalHeight });
-        
-        // 컨테이너 크기 계산
         if (containerRef.current) {
-          const containerWidth = containerRef.current.clientWidth - 48; // padding 고려
-          const containerHeight = 600; // 최대 높이
-
-          // 이미지가 컨테이너보다 큰지 확인
+          const containerWidth = containerRef.current.clientWidth - 48;
+          const containerHeight = 600;
           const isLarge = img.naturalWidth > containerWidth || img.naturalHeight > containerHeight;
           setIsLargeImage(isLarge);
-
-          // 이미지 비율 유지하면서 초기 크롭 영역 설정
           const imageRatio = img.naturalWidth / img.naturalHeight;
           let cropWidth, cropHeight;
-
           if (isLarge) {
             if (imageRatio > 1) {
-              // 가로가 더 긴 경우
               cropWidth = Math.min(300, containerWidth);
               cropHeight = cropWidth / imageRatio;
             } else {
-              // 세로가 더 긴 경우
               cropHeight = Math.min(300, containerHeight);
               cropWidth = cropHeight * imageRatio;
             }
@@ -73,7 +68,6 @@ export default function CropPage() {
             cropWidth = Math.min(img.naturalWidth, 300);
             cropHeight = cropWidth / imageRatio;
           }
-
           setCrop({
             unit: 'px',
             x: (containerWidth - cropWidth) / 2,
@@ -86,7 +80,15 @@ export default function CropPage() {
       img.src = reader.result as string;
     };
     reader.readAsDataURL(file);
-  };
+    setResult(null);
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { 'image/*': [] },
+    maxSize: 10 * 1024 * 1024,
+    multiple: false
+  });
 
   const handleCrop = async () => {
     if (!uploadedFile || !completedCrop || !imgRef.current || !naturalSize) return;
@@ -156,22 +158,44 @@ export default function CropPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <main className="min-h-0 bg-gradient-to-br from-gray-50 to-gray-100">
       <Navigation />
-      <div className="max-w-6xl mx-auto mobile-container">
+      <div className="max-w-6xl mx-auto mobile-container pb-20">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          <div className="mobile-header from-green-500 to-teal-500">
+          <div className="mobile-header from-green-500 to-green-600">
             <h1 className="mobile-header-title">
               이미지 자르기
             </h1>
             <p className="mobile-header-description text-green-50">
-              이미지의 원하는 부분만 선택하여 자르세요.
+              이미지를 원하는 크기로 자르세요.
             </p>
           </div>
 
           <div className="p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
             {!originalImage ? (
-              <ImageUploader onImageUpload={handleImageUpload} maxFileSize={10 * 1024 * 1024} />
+              <div
+                {...getRootProps()}
+                className={`relative border-2 border-dashed rounded-xl p-4 sm:p-6 text-center cursor-pointer transition-colors ${
+                  isDragActive
+                    ? 'border-green-500 bg-green-50'
+                    : 'border-gray-300 hover:border-green-500 hover:bg-green-50'
+                }`}
+              >
+                <input {...getInputProps()} />
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto rounded-full bg-green-100 flex items-center justify-center">
+                    <ArrowUpTrayIcon className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" />
+                  </div>
+                  <div className="space-y-1 sm:space-y-2">
+                    <p className="text-sm sm:text-base lg:text-lg font-medium text-gray-700">
+                      이미지를 드래그하여 놓거나 클릭하여 선택하세요
+                    </p>
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      지원 형식: JPG, PNG, GIF, WEBP (최대 10MB)
+                    </p>
+                  </div>
+                </div>
+              </div>
             ) : (
               <div className="space-y-4 sm:space-y-6">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
@@ -188,7 +212,10 @@ export default function CropPage() {
                 </div>
 
                 <div className="bg-gray-50 rounded-xl p-3 sm:p-6">
-                  <div className="relative max-w-full overflow-hidden rounded-lg bg-gray-100">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
+                    <h3 className="text-sm sm:text-lg font-medium text-gray-900">자르기 영역 선택</h3>
+                  </div>
+                  <div className="relative max-w-full overflow-hidden rounded-lg bg-gray-100 flex justify-center">
                     <ReactCrop
                       crop={crop}
                       onChange={(_, percentCrop) => setCrop(percentCrop)}
@@ -199,7 +226,7 @@ export default function CropPage() {
                       <img
                         ref={imgRef}
                         alt="자를 이미지"
-                        src={originalImage}
+                        src={originalImage || ''}
                         className="max-w-full h-auto"
                       />
                     </ReactCrop>

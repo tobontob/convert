@@ -763,20 +763,20 @@ export default function Editor() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <main className="min-h-0 bg-gradient-to-br from-gray-50 to-gray-100">
       <Navigation />
-      <div className="max-w-6xl mx-auto mobile-container">
+      <div className="max-w-6xl mx-auto mobile-container pb-20">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          <div className="px-3 py-4 sm:p-10 bg-gradient-to-r from-indigo-500 to-purple-500">
-            <h1 className="text-xl sm:text-4xl font-bold text-white mb-1 sm:mb-2">
+          <div className="mobile-header from-pink-500 to-rose-500">
+            <h1 className="mobile-header-title">
               이미지 편집
             </h1>
-            <p className="text-sm sm:text-lg text-indigo-50">
+            <p className="mobile-header-description text-pink-50">
               이미지를 자유롭게 편집하세요.
             </p>
           </div>
 
-          <div className="p-2 sm:p-10 space-y-4 sm:space-y-6">
+          <div className="p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
             {!preview ? (
               <div
                 {...getRootProps()}
